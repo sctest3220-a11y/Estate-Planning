@@ -31,8 +31,10 @@ from ..documents import (
     document_title,
     generate,
 )
-from ..models import STATUS_CHOICES, RELATIONSHIP_CHOICES
+from ..assets_csv import parse_csv, template_csv
+from ..models import ASSET_CATEGORIES, STATUS_CHOICES, RELATIONSHIP_CHOICES
 from ..sample import sample_plan
+from ..tax import tax_plan
 from . import google_auth
 from .forms import build_plan, parse_language, parse_selected_docs
 from .i18n import DEFAULT_UI_LANG, UI_LANGS, t as translate
@@ -61,6 +63,7 @@ def create_app():
             "doc_catalog": _doc_catalog(),
             "language_modes": LANGUAGE_MODES,
             "language_labels": LANGUAGE_LABELS,
+            "asset_categories": ASSET_CATEGORIES,
             "google_enabled": google_auth.is_configured(),
             "ui_lang": ui_lang,
             "ui_langs": UI_LANGS,
@@ -172,6 +175,20 @@ def create_app():
             flash(_t("terms_must_ack"), "error")
         return render_template("terms.html")
 
+    # ---- Asset sheet template (offline) ------------------------------------
+
+    @app.route("/asset-template.csv")
+    @login_required
+    @terms_required
+    def asset_template():
+        return Response(
+            template_csv(),
+            mimetype="text/csv",
+            headers={
+                "Content-Disposition": "attachment; filename=asset_sheet_template.csv"
+            },
+        )
+
     # ---- Preview (no data entry required) ----------------------------------
 
     @app.route("/preview")
@@ -206,6 +223,13 @@ def create_app():
                     relationships=RELATIONSHIP_CHOICES,
                     form=request.form,
                 )
+            # Merge an uploaded asset-sheet CSV, if provided (non-fatal on error).
+            upload = request.files.get("asset_csv")
+            if upload and upload.filename:
+                try:
+                    plan.assets.extend(parse_csv(upload.read().decode("utf-8-sig")))
+                except Exception:
+                    flash(_t("flash_csv_failed"), "error")
             mode = parse_language(request.form)
             selected = parse_selected_docs(request.form)
             advice = assess(plan)
@@ -214,6 +238,8 @@ def create_app():
                 "results.html",
                 advice=advice,
                 documents=documents,
+                tax=tax_plan(plan),
+                assets=plan.assets,
                 form=request.form,
             )
         return render_template(

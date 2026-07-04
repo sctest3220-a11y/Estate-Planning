@@ -22,7 +22,33 @@
   {% if advice.tax_breakdown %}
   <h2>{{ t('r_tax') }}</h2>
   <ul>
-    {% for tax in advice.tax_breakdown %}<li>{{ tax }}</li>{% endfor %}
+    {% for line in advice.tax_breakdown %}<li>{{ line }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h1>{{ t('r_taxplan_title') }}</h1>
+  {% if tax.estimates or tax.total_estate %}
+    <div class="tax-figures">
+      {% if tax.total_estate %}
+      <div class="figure">
+        <span class="figure-label">{{ t('r_taxplan_total_estate') }}</span>
+        <span class="figure-value">{{ '{:,.0f}'.format(tax.total_estate) }} THB</span>
+      </div>
+      {% endif %}
+      <div class="figure">
+        <span class="figure-label">{{ t('r_taxplan_total_tax') }}</span>
+        <span class="figure-value">{{ '{:,.0f}'.format(tax.total_tax) }} THB</span>
+      </div>
+    </div>
+  {% else %}
+    <p class="muted">{{ t('r_taxplan_none') }}</p>
+  {% endif %}
+  {% if tax.tips %}
+  <h2>{{ t('r_taxplan_tips') }}</h2>
+  <ul>
+    {% for tip in tax.tips %}<li>{{ tip }}</li>{% endfor %}
   </ul>
   {% endif %}
 </div>
@@ -31,8 +57,17 @@
   <div class="results-head">
     <h1>{{ t('r_docs_title') }}</h1>
     <form method="post" action="{{ url_for('download') }}">
-      {% for key, value in form.items(multi=True) %}
+      {% for key, value in form.items(multi=True) if not key.startswith('asset_') %}
         <input type="hidden" name="{{ key }}" value="{{ value }}">
+      {% endfor %}
+      {# Re-emit merged assets (including any from an uploaded CSV) so the
+         download regenerates identically without needing the file again. #}
+      {% for a in assets %}
+        <input type="hidden" name="asset_category" value="{{ a.category }}">
+        <input type="hidden" name="asset_description" value="{{ a.description }}">
+        <input type="hidden" name="asset_value" value="{{ a.value_thb }}">
+        <input type="hidden" name="asset_location" value="{{ a.location }}">
+        <input type="hidden" name="asset_notes" value="{{ a.notes }}">
       {% endfor %}
       <button type="submit">{{ t('r_download') }}</button>
     </form>

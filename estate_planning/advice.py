@@ -7,16 +7,15 @@ from .models import (
     STATUS_FOREIGN_RESIDENT,
     STATUS_THAI_NATIONAL,
     STATUS_VISITOR,
-    RELATIONSHIP_DESCENDANT,
-    RELATIONSHIP_ASCENDANT,
-    RELATIONSHIP_SPOUSE,
     Advice,
     EstatePlan,
 )
-
-TAX_THRESHOLD_THB = 100_000_000
-TAX_RATE_DESCENDANT_ASCENDANT = 0.05
-TAX_RATE_OTHER = 0.10
+from .tax import (
+    TAX_RATE_DESCENDANT_ASCENDANT,
+    TAX_RATE_OTHER,
+    TAX_THRESHOLD_THB,
+    tax_breakdown_lines,
+)
 
 
 def assess(plan: EstatePlan) -> Advice:
@@ -94,28 +93,7 @@ def assess(plan: EstatePlan) -> Advice:
             "(Sin Somros) is split first."
         )
 
-    tax_breakdown = []
-    for b in plan.beneficiaries:
-        if b.relationship == RELATIONSHIP_SPOUSE:
-            tax_breakdown.append(f"{b.name}: exempt (spouse).")
-            continue
-        taxable = max(0.0, b.inherited_value_thb - TAX_THRESHOLD_THB)
-        rate = (
-            TAX_RATE_DESCENDANT_ASCENDANT
-            if b.relationship in (RELATIONSHIP_DESCENDANT, RELATIONSHIP_ASCENDANT)
-            else TAX_RATE_OTHER
-        )
-        if taxable <= 0:
-            tax_breakdown.append(
-                f"{b.name}: below the {TAX_THRESHOLD_THB:,.0f} THB threshold — "
-                "no inheritance tax due."
-            )
-        else:
-            tax = taxable * rate
-            tax_breakdown.append(
-                f"{b.name} ({b.relationship}): taxable amount {taxable:,.0f} THB "
-                f"x {rate:.0%} = {tax:,.0f} THB estimated inheritance tax."
-            )
+    tax_breakdown = tax_breakdown_lines(plan)
 
     return Advice(
         summary=summary,

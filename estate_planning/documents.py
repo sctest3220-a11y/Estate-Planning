@@ -4,7 +4,7 @@ All output is a DRAFT for review by a licensed Thai probate/estate lawyer before
 signing or witnessing. Nothing produced here is legal advice.
 """
 
-from .models import EstatePlan
+from .models import ASSET_CATEGORIES, EstatePlan
 
 MODE_EN = "en"
 MODE_TH = "th"
@@ -262,6 +262,31 @@ def render_medical_poa(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
 def render_asset_inventory(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     out = _header(mode, "Asset Inventory", "บัญชีทรัพย์สิน")
     out += f"{_lbl(mode, 'Owner', 'เจ้าของ')}: {plan.full_name}\n\n"
+
+    # Itemized asset sheet (from online entry or an uploaded CSV).
+    if plan.assets:
+        out += f"## {_lbl(mode, 'Itemized assets', 'รายการทรัพย์สิน')}\n\n"
+        headers = [
+            _lbl(mode, "Category", "หมวดหมู่"),
+            _lbl(mode, "Description", "รายละเอียด"),
+            _lbl(mode, "Value (THB)", "มูลค่า (บาท)"),
+            _lbl(mode, "Location / Reference", "ที่ตั้ง / เอกสารอ้างอิง"),
+            _lbl(mode, "Notes", "หมายเหตุ"),
+        ]
+        out += "| " + " | ".join(headers) + " |\n"
+        out += "|" + "|".join(["---"] * len(headers)) + "|\n"
+        total = 0.0
+        for a in plan.assets:
+            total += a.value_thb or 0.0
+            cat = ASSET_CATEGORIES.get(a.category, a.category)
+            value = f"{a.value_thb:,.0f}" if a.value_thb else ""
+            out += (
+                f"| {cat} | {a.description} | {value} | {a.location} | {a.notes} |\n"
+            )
+        out += (
+            f"\n**{_lbl(mode, 'Total listed value', 'มูลค่ารวมที่ระบุ')}: "
+            f"{total:,.0f} THB**\n\n"
+        )
 
     def line(en, th, present):
         mark = "☑" if present else "☐"

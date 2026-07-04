@@ -5,9 +5,11 @@ Mirrors the questionnaire flow in estate_planning/cli.py.
 
 from ..documents import DOCUMENT_SPECS, LANGUAGE_MODES, MODE_DUAL
 from ..models import (
+    ASSET_CATEGORIES,
     STATUS_CHOICES,
     STATUS_VISITOR,
     RELATIONSHIP_CHOICES,
+    Asset,
     Beneficiary,
     EstatePlan,
     Witness,
@@ -101,6 +103,39 @@ def build_plan(form):
             )
         )
 
+    # Itemized assets (online rows or carried from an uploaded CSV).
+    assets = []
+    a_cats = form.getlist("asset_category")
+    a_descs = form.getlist("asset_description")
+    a_values = form.getlist("asset_value")
+    a_locs = form.getlist("asset_location")
+    a_notes = form.getlist("asset_notes")
+    for i, cat in enumerate(a_cats):
+        desc = a_descs[i].strip() if i < len(a_descs) and a_descs[i] else ""
+        raw_value = a_values[i] if i < len(a_values) else "0"
+        loc = a_locs[i].strip() if i < len(a_locs) and a_locs[i] else ""
+        note = a_notes[i].strip() if i < len(a_notes) and a_notes[i] else ""
+        if not any([cat.strip(), desc, (raw_value or "").strip(), loc, note]):
+            continue
+        try:
+            value = _parse_value(raw_value)
+        except ValueError:
+            errors.append(f"Asset value '{raw_value}' must be a number.")
+            value = 0.0
+        if value < 0:
+            errors.append("Asset values cannot be negative.")
+            value = 0.0
+        category = cat.strip() if cat.strip() in ASSET_CATEGORIES else "other"
+        assets.append(
+            Asset(
+                category=category,
+                description=desc,
+                value_thb=value,
+                location=loc,
+                notes=note,
+            )
+        )
+
     if errors:
         return None, errors
 
@@ -127,5 +162,6 @@ def build_plan(form):
         healthcare_proxy_name=(form.get("healthcare_proxy_name") or "").strip() or "TBD",
         witnesses=witnesses,
         beneficiaries=beneficiaries,
+        assets=assets,
     )
     return plan, []

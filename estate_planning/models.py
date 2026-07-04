@@ -36,6 +36,28 @@ class Beneficiary:
     inherited_value_thb: float = 0.0
 
 
+# Asset categories (key -> English label). Used by the asset sheet and inventory.
+ASSET_CATEGORIES = {
+    "real_estate": "Real estate",
+    "vehicle": "Vehicle",
+    "bank_account": "Bank account",
+    "investment": "Investment / retirement",
+    "insurance": "Insurance policy",
+    "business": "Business interest",
+    "digital": "Digital asset",
+    "other": "Other",
+}
+
+
+@dataclass
+class Asset:
+    category: str
+    description: str = ""
+    value_thb: float = 0.0
+    location: str = ""
+    notes: str = ""
+
+
 @dataclass
 class EstatePlan:
     full_name: str
@@ -65,6 +87,7 @@ class EstatePlan:
 
     witnesses: List[Witness] = field(default_factory=list)
     beneficiaries: List[Beneficiary] = field(default_factory=list)
+    assets: List[Asset] = field(default_factory=list)
 
 
 @dataclass

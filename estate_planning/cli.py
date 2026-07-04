@@ -27,6 +27,7 @@ from .models import (
     Witness,
 )
 from .advice import assess
+from .tax import tax_plan
 
 
 def ask(prompt, default=None):
@@ -247,10 +248,25 @@ def write_documents(plan: EstatePlan, selected_keys, mode, output_dir):
     return written
 
 
+def print_tax_plan(plan):
+    tplan = tax_plan(plan)
+    print("\n" + "=" * 70)
+    print("INHERITANCE TAX PLANNING")
+    print("=" * 70)
+    if tplan["total_estate"]:
+        print(f"Total listed estate: {tplan['total_estate']:,.0f} THB")
+    print(f"Estimated inheritance tax: {tplan['total_tax']:,.0f} THB")
+    if tplan["tips"]:
+        print("\nPlanning suggestions:")
+        for tip in tplan["tips"]:
+            print(f"  - {tip}")
+
+
 def main():
     plan = collect_plan()
     advice = assess(plan)
     print_advice(advice)
+    print_tax_plan(plan)
 
     selected_keys = choose_documents()
     mode = choose_language()

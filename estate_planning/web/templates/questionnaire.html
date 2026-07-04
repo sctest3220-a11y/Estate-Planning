@@ -17,7 +17,7 @@
   </div>
   <p class="muted">{{ t('q_intro') }}</p>
 
-  <form method="post" action="{{ url_for('questionnaire') }}" id="qform">
+  <form method="post" action="{{ url_for('questionnaire') }}" id="qform" enctype="multipart/form-data">
 
     <fieldset>
       <legend>{{ t('q_docs_legend') }}</legend>
@@ -113,6 +113,19 @@
       </div>
     </fieldset>
 
+    <fieldset data-docs="last_will asset_inventory">
+      <legend>{{ t('q_assets_sheet_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
+      <p class="muted">{{ t('q_assets_sheet_hint') }}</p>
+      <p>
+        <a class="button-link" href="{{ url_for('asset_template') }}">{{ t('q_download_template') }}</a>
+      </p>
+      <label>{{ t('q_upload_csv') }}
+        <input type="file" name="asset_csv" accept=".csv,text/csv">
+      </label>
+      <div id="assets"></div>
+      <button type="button" class="secondary" onclick="addAsset()">{{ t('q_add_asset') }}</button>
+    </fieldset>
+
     <fieldset data-docs="last_will living_will medical_poa">
       <legend>{{ t('q_witnesses_legend') }} <span class="opt">{{ t('q_witnesses_hint') }}</span></legend>
       <div id="witnesses"></div>
@@ -133,6 +146,25 @@
 {% block scripts %}
 <script>
   const RELATIONSHIPS = {{ relationships | tojson }};
+  const ASSET_CATEGORIES = {{ asset_categories | tojson }};
+
+  function addAsset(cat, desc, value, loc, notes) {
+    const div = document.createElement('div');
+    div.className = 'repeat-row';
+    let options = Object.keys(ASSET_CATEGORIES).map(function (k) {
+      return '<option value="' + k + '"' + (k === cat ? ' selected' : '') + '>' +
+        ASSET_CATEGORIES[k] + '</option>';
+    }).join('');
+    div.innerHTML =
+      '<select name="asset_category">' + options + '</select>' +
+      '<input type="text" name="asset_description" placeholder="Description" value="' + (desc || '') + '">' +
+      '<input type="text" name="asset_value" placeholder="Value (THB)" value="' + (value || '') + '">' +
+      '<input type="text" name="asset_location" placeholder="Location / reference" value="' + (loc || '') + '">' +
+      '<input type="text" name="asset_notes" placeholder="Notes" value="' + (notes || '') + '">' +
+      '<button type="button" class="link-btn" onclick="this.parentNode.remove(); applyContext()">remove</button>';
+    document.getElementById('assets').appendChild(div);
+    applyContext();
+  }
 
   function addWitness(name, id) {
     const div = document.createElement('div');
@@ -193,6 +225,7 @@
   // Seed a couple of blank rows, then apply context on load.
   addWitness(); addWitness();
   addBeneficiary();
+  addAsset();
   applyContext();
 </script>
 {% endblock %}

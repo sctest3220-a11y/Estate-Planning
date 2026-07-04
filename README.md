@@ -44,6 +44,17 @@ Features:
   `/preview`, in any language, without entering any personal data.
 - **Mandatory vs optional fields** — only full name and status are required; every
   other field is marked optional and can be left blank to fill in by hand.
+- **Asset sheet** — itemize assets (category, description, value, location, notes)
+  three ways: fill in online, or **download a CSV template** (`/asset-template.csv`)
+  to complete offline in Excel/Sheets and **upload** it back. Assets flow into the
+  Asset Inventory document (as a table with a total) and the tax estimate.
+- **Inheritance tax planning** — estimates tax per beneficiary (only the excess over
+  100M THB is taxed; 5% for descendants/ascendants, 10% for others; spouses exempt),
+  shows total estate and total tax, and gives planning suggestions: inherited assets
+  are exempt from personal income tax, distributing across beneficiaries (the 100M
+  allowance is per person), routing through an exempt spouse, and lifetime gift-tax
+  exemptions (20M/yr to lineal relatives or spouse, 10M/yr to others).
+- **Works on web and mobile browsers** — fully responsive down to small phone widths.
 
 **Privacy by design:** estate-planning inputs (names, passport numbers,
 beneficiaries, asset values) are processed in memory per request and are **never
@@ -90,6 +101,8 @@ is committed.
 - `estate_planning/advice.py` — rules engine that turns a profile into warnings/recommendations/tax estimates.
 - `estate_planning/documents.py` — bilingual document renderers.
 - `estate_planning/documents.py` — language-aware (English/Thai/dual) document renderers + `generate()`.
+- `estate_planning/tax.py` — inheritance & gift tax estimation and planning suggestions.
+- `estate_planning/assets_csv.py` — asset-sheet CSV template generation and upload parsing.
 - `estate_planning/sample.py` — placeholder plan used for the blank-template preview.
 - `estate_planning/cli.py` — interactive questionnaire entry point.
 - `estate_planning/web/` — Flask web app (`app.py` routes, `forms.py` form→plan parsing, `store.py` credential store, `google_auth.py` Google OAuth, `templates/`, `static/`).

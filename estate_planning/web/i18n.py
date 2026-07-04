@@ -94,6 +94,35 @@ TRANSLATIONS = {
         "en": "Could not verify your Google email.",
         "th": "ไม่สามารถยืนยันอีเมล Google ของท่านได้",
     },
+    "flash_csv_failed": {
+        "en": "Could not read the uploaded asset sheet. Check it is a CSV file.",
+        "th": "ไม่สามารถอ่านไฟล์บัญชีทรัพย์สินที่อัปโหลดได้ โปรดตรวจสอบว่าเป็นไฟล์ CSV",
+    },
+
+    # Assets section
+    "q_assets_sheet_legend": {"en": "Asset sheet", "th": "บัญชีทรัพย์สิน"},
+    "q_assets_sheet_hint": {
+        "en": "List your assets below, or download the template to fill in offline and upload it.",
+        "th": "ระบุทรัพย์สินด้านล่าง หรือดาวน์โหลดแม่แบบเพื่อกรอกออฟไลน์แล้วอัปโหลด",
+    },
+    "q_download_template": {"en": "⬇ Download CSV template", "th": "⬇ ดาวน์โหลดแม่แบบ CSV"},
+    "q_upload_csv": {"en": "Upload a filled asset sheet (CSV)", "th": "อัปโหลดบัญชีทรัพย์สินที่กรอกแล้ว (CSV)"},
+    "q_add_asset": {"en": "+ Add asset", "th": "+ เพิ่มทรัพย์สิน"},
+    "q_asset_category": {"en": "Category", "th": "หมวดหมู่"},
+    "q_asset_description": {"en": "Description", "th": "รายละเอียด"},
+    "q_asset_value": {"en": "Value (THB)", "th": "มูลค่า (บาท)"},
+    "q_asset_location": {"en": "Location / reference", "th": "ที่ตั้ง / เอกสารอ้างอิง"},
+    "q_asset_notes": {"en": "Notes", "th": "หมายเหตุ"},
+
+    # Tax planning
+    "r_taxplan_title": {"en": "Inheritance tax planning", "th": "การวางแผนภาษีมรดก"},
+    "r_taxplan_total_estate": {"en": "Total listed estate", "th": "มูลค่ากองมรดกที่ระบุรวม"},
+    "r_taxplan_total_tax": {"en": "Estimated inheritance tax", "th": "ประมาณการภาษีมรดก"},
+    "r_taxplan_tips": {"en": "Planning suggestions", "th": "ข้อเสนอแนะการวางแผน"},
+    "r_taxplan_none": {
+        "en": "Add beneficiaries with values to see a tax estimate.",
+        "th": "เพิ่มผู้รับพร้อมมูลค่าเพื่อดูประมาณการภาษี",
+    },
 
     # Questionnaire
     "q_title": {"en": "Estate planning questionnaire", "th": "แบบสอบถามการวางแผนมรดก"},

@@ -224,6 +224,27 @@ summary { cursor: pointer; padding: 0.6rem 0.8rem; font-weight: 600; }
 .control-group { display: flex; flex-direction: column; gap: 0.2rem; }
 .control-group strong { margin-bottom: 0.3rem; }
 
+/* Tax planning figures */
+.tax-figures { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0 0.5rem; }
+.figure {
+  display: flex;
+  flex-direction: column;
+  background: var(--soft);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  flex: 1 1 150px;
+  min-width: 0;
+}
+.figure-label { color: var(--muted); font-size: 0.8rem; }
+.figure-value { font-size: 1.2rem; font-weight: 700; color: var(--accent); word-break: break-word; }
+
+input[type=file] {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
 /* Header: language switch + theme toggle */
 .lang-switch { display: inline-flex; gap: 0.25rem; align-items: center; font-size: 0.85rem; }
 .lang-switch a {
