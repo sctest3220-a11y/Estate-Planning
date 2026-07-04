@@ -1,44 +1,43 @@
 {% extends "base.html" %}
-{% block title %}Your results · Estate Planning{% endblock %}
+{% block title %}{{ t('r_advice_title') }} · {{ t('brand') }}{% endblock %}
 {% block content %}
 <div class="card">
-  <h1>Your advice</h1>
+  <h1>{{ t('r_advice_title') }}</h1>
   <p class="summary">{{ advice.summary }}</p>
 
   {% if advice.recommendations %}
-  <h2>Recommendations</h2>
+  <h2>{{ t('r_recommendations') }}</h2>
   <ul>
     {% for r in advice.recommendations %}<li>{{ r }}</li>{% endfor %}
   </ul>
   {% endif %}
 
   {% if advice.warnings %}
-  <h2>Warnings</h2>
+  <h2>{{ t('r_warnings') }}</h2>
   <ul class="warnings">
     {% for w in advice.warnings %}<li>{{ w }}</li>{% endfor %}
   </ul>
   {% endif %}
 
   {% if advice.tax_breakdown %}
-  <h2>Estimated inheritance tax by beneficiary</h2>
+  <h2>{{ t('r_tax') }}</h2>
   <ul>
-    {% for t in advice.tax_breakdown %}<li>{{ t }}</li>{% endfor %}
+    {% for tax in advice.tax_breakdown %}<li>{{ tax }}</li>{% endfor %}
   </ul>
   {% endif %}
 </div>
 
 <div class="card">
   <div class="results-head">
-    <h1>Draft documents</h1>
+    <h1>{{ t('r_docs_title') }}</h1>
     <form method="post" action="{{ url_for('download') }}">
       {% for key, value in form.items(multi=True) %}
         <input type="hidden" name="{{ key }}" value="{{ value }}">
       {% endfor %}
-      <button type="submit">Download all as ZIP</button>
+      <button type="submit">{{ t('r_download') }}</button>
     </form>
   </div>
-  <p class="muted">These are drafts. Have a licensed Thai lawyer review each one
-  before signing or witnessing.</p>
+  <p class="muted">{{ t('r_draft_note') }}</p>
 
   {% for key, (title, content) in documents.items() %}
   <details {% if loop.first %}open{% endif %}>
@@ -47,6 +46,6 @@
   </details>
   {% endfor %}
 
-  <p><a href="{{ url_for('questionnaire') }}">← Start over</a></p>
+  <p><a href="{{ url_for('questionnaire') }}">{{ t('r_start_over') }}</a></p>
 </div>
 {% endblock %}

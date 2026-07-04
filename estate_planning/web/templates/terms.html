@@ -1,33 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Terms · Estate Planning{% endblock %}
+{% block title %}{{ t('terms_title') }} · {{ t('brand') }}{% endblock %}
 {% block content %}
 <div class="card">
-  <h1>Before you continue</h1>
+  <h1>{{ t('terms_title') }}</h1>
   <div class="terms">
-    <p><strong>This tool is not legal advice and has not been reviewed by a lawyer.</strong>
-    It is an informational tool that encodes publicly available Thai statutory rules
-    (Civil and Commercial Code, National Health Act B.E. 2550) to help you organize
-    your estate planning and produce <em>draft</em> documents.</p>
-
+    <p><strong>{{ t('terms_lead') }}</strong></p>
     <ul>
-      <li>Using this tool does not create an attorney–client relationship.</li>
-      <li>Every document it generates is a <strong>draft</strong>. Do not sign or have
-          anyone witness a document until a licensed Thai probate/estate lawyer has
-          reviewed it.</li>
-      <li>Laws and tax thresholds change. Figures and rules here may be out of date;
-          you are responsible for verifying current law.</li>
-      <li>The advice is generated from the answers you provide and cannot account for
-          the full facts of your situation.</li>
-      <li>You use this tool at your own discretion and risk.</li>
+      <li>{{ t('terms_point_1') }}</li>
+      <li>{{ t('terms_point_2') }}</li>
+      <li>{{ t('terms_point_3') }}</li>
+      <li>{{ t('terms_point_4') }}</li>
+      <li>{{ t('terms_point_5') }}</li>
     </ul>
   </div>
   <form method="post" action="{{ url_for('terms') }}">
     <label class="checkbox">
       <input type="checkbox" name="acknowledge">
-      I understand this is not legal advice, has not been reviewed by a lawyer, and
-      that all output is a draft I must verify with a licensed Thai lawyer.
+      {{ t('terms_checkbox') }}
     </label>
-    <button type="submit">I acknowledge — continue</button>
+    <button type="submit">{{ t('terms_btn') }}</button>
   </form>
 </div>
 {% endblock %}

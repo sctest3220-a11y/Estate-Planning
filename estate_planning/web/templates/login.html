@@ -1,25 +1,25 @@
 {% extends "base.html" %}
-{% block title %}Log in · Estate Planning{% endblock %}
+{% block title %}{{ t('login_title') }} · {{ t('brand') }}{% endblock %}
 {% block content %}
 <div class="card narrow">
-  <h1>Log in</h1>
+  <h1>{{ t('login_title') }}</h1>
 
   {% if google_enabled %}
   <a class="google-btn" href="{{ url_for('login_google') }}">
-    <span class="g">G</span> Sign in with Google
+    <span class="g">G</span> {{ t('google_signin') }}
   </a>
-  <div class="or">or</div>
+  <div class="or">{{ t('or') }}</div>
   {% endif %}
 
   <form method="post" action="{{ url_for('login') }}{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}">
-    <label>Username
+    <label>{{ t('username') }}
       <input type="text" name="username" autocomplete="username" required autofocus>
     </label>
-    <label>Password
+    <label>{{ t('password') }}
       <input type="password" name="password" autocomplete="current-password" required>
     </label>
-    <button type="submit">Log in</button>
+    <button type="submit">{{ t('login_btn') }}</button>
   </form>
-  <p class="muted">No account? <a href="{{ url_for('register') }}">Create one</a>.</p>
+  <p class="muted">{{ t('no_account') }} <a href="{{ url_for('register') }}">{{ t('create_one') }}</a>.</p>
 </div>
 {% endblock %}

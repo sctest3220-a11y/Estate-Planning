@@ -31,7 +31,15 @@ Features:
 
 - **Choose documents** — generate any subset of Last Will, Living Will, Medical POA,
   and Asset Inventory, or all of them.
-- **Choose language** — English, Thai, or dual (English + Thai) output.
+- **Context-aware questions** — the questionnaire only shows the questions relevant
+  to the documents you selected (e.g. beneficiaries/executor appear only for a Will,
+  the healthcare proxy only for a Medical POA). Hidden fields are disabled so stale
+  answers are never submitted.
+- **Choose document language** — English, Thai, or dual (English + Thai) output.
+- **Interface language (TH / ENG)** — a separate toggle in the header translates the
+  app UI itself into Thai or English.
+- **Light / dark mode** — a header toggle; the choice is remembered (localStorage) and
+  defaults to your system preference.
 - **Preview blank templates** — see every document with `[placeholders]` at
   `/preview`, in any language, without entering any personal data.
 - **Mandatory vs optional fields** — only full name and status are required; every

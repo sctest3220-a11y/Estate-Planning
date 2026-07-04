@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Create account · Estate Planning{% endblock %}
+{% block title %}{{ t('register_title') }} · {{ t('brand') }}{% endblock %}
 {% block content %}
 <div class="card narrow">
-  <h1>Create account</h1>
+  <h1>{{ t('register_title') }}</h1>
   <form method="post" action="{{ url_for('register') }}">
-    <label>Username
+    <label>{{ t('username') }}
       <input type="text" name="username" autocomplete="username" required autofocus>
     </label>
-    <label>Password <span class="muted">(at least 8 characters)</span>
+    <label>{{ t('password') }} <span class="muted">{{ t('password_hint') }}</span>
       <input type="password" name="password" autocomplete="new-password" minlength="8" required>
     </label>
-    <button type="submit">Create account</button>
+    <button type="submit">{{ t('create_account_btn') }}</button>
   </form>
-  <p class="muted">Already have an account? <a href="{{ url_for('login') }}">Log in</a>.</p>
+  <p class="muted">{{ t('have_account') }} <a href="{{ url_for('login') }}">{{ t('login_title') }}</a>.</p>
 </div>
 {% endblock %}

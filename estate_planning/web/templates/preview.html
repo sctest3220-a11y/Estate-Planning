@@ -1,19 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Preview templates · Estate Planning{% endblock %}
+{% block title %}{{ t('pv_title') }} · {{ t('brand') }}{% endblock %}
 {% block content %}
 <div class="card">
   <div class="results-head">
-    <h1>Preview blank templates</h1>
-    <a class="button-link" href="{{ url_for('questionnaire') }}">Fill in my details →</a>
+    <h1>{{ t('pv_title') }}</h1>
+    <a class="button-link" href="{{ url_for('questionnaire') }}">{{ t('pv_fill_link') }}</a>
   </div>
-  <p class="muted">These are the document templates with <code>[placeholders]</code>
-  where your details would go. No information is required to view them. Choose which
-  documents and which language to preview, then generate the real drafts from the
-  questionnaire.</p>
+  <p class="muted">{{ t('pv_intro') }}</p>
 
   <form method="get" action="{{ url_for('preview') }}" class="preview-controls">
     <div class="control-group">
-      <strong>Documents</strong>
+      <strong>{{ t('pv_documents') }}</strong>
       {% for key, en_title, local_title in doc_catalog %}
         <label class="checkbox">
           <input type="checkbox" name="documents" value="{{ key }}"
@@ -23,7 +20,7 @@
       {% endfor %}
     </div>
     <div class="control-group">
-      <strong>Language</strong>
+      <strong>{{ t('pv_language') }}</strong>
       {% for m in language_modes %}
         <label class="checkbox">
           <input type="radio" name="language" value="{{ m }}" {{ 'checked' if m == mode }}>
@@ -31,7 +28,7 @@
         </label>
       {% endfor %}
     </div>
-    <button type="submit" class="secondary">Update preview</button>
+    <button type="submit" class="secondary">{{ t('pv_update') }}</button>
   </form>
 </div>
 

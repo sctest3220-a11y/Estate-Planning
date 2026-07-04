@@ -35,6 +35,7 @@ from ..models import STATUS_CHOICES, RELATIONSHIP_CHOICES
 from ..sample import sample_plan
 from . import google_auth
 from .forms import build_plan, parse_language, parse_selected_docs
+from .i18n import DEFAULT_UI_LANG, UI_LANGS, t as translate
 from .store import UserStore
 
 store = UserStore()
@@ -52,15 +53,28 @@ def create_app():
     app.secret_key = os.environ.get("ESTATE_SECRET_KEY", "dev-only-change-me")
     google_auth.init_app(app)
 
-    # Make catalog + language options available to every template.
+    # Make catalog + language options + UI translations available to every template.
     @app.context_processor
     def inject_globals():
+        ui_lang = session.get("ui_lang", DEFAULT_UI_LANG)
         return {
             "doc_catalog": _doc_catalog(),
             "language_modes": LANGUAGE_MODES,
             "language_labels": LANGUAGE_LABELS,
             "google_enabled": google_auth.is_configured(),
+            "ui_lang": ui_lang,
+            "ui_langs": UI_LANGS,
+            "t": lambda key: translate(key, ui_lang),
         }
+
+    @app.route("/set-language/<lang>")
+    def set_language(lang):
+        if lang in UI_LANGS:
+            session["ui_lang"] = lang
+        return redirect(request.referrer or url_for("index"))
+
+    def _t(key):
+        return translate(key, session.get("ui_lang", DEFAULT_UI_LANG))
 
     def login_required(view):
         @wraps(view)
@@ -97,7 +111,7 @@ def create_app():
                 request.form.get("username", ""), request.form.get("password", "")
             )
             if ok:
-                flash("Account created. Please log in.", "success")
+                flash(_t("flash_account_created"), "success")
                 return redirect(url_for("login"))
             flash(error, "error")
         return render_template("register.html")
@@ -110,13 +124,13 @@ def create_app():
             if store.verify(username, password):
                 _start_session(username.strip().lower())
                 return redirect(request.args.get("next") or url_for("index"))
-            flash("Invalid username or password.", "error")
+            flash(_t("flash_invalid_login"), "error")
         return render_template("login.html")
 
     @app.route("/login/google")
     def login_google():
         if not google_auth.is_configured():
-            flash("Google sign-in is not configured on this server.", "error")
+            flash(_t("flash_google_not_configured"), "error")
             return redirect(url_for("login"))
         redirect_uri = url_for("google_callback", _external=True)
         return google_auth.authorize_redirect(redirect_uri)
@@ -128,10 +142,10 @@ def create_app():
         try:
             email = google_auth.fetch_email()
         except Exception:
-            flash("Google sign-in failed. Please try again.", "error")
+            flash(_t("flash_google_failed"), "error")
             return redirect(url_for("login"))
         if not email:
-            flash("Could not verify your Google email.", "error")
+            flash(_t("flash_google_email"), "error")
             return redirect(url_for("login"))
         username = store.create_or_get_google_user(email)
         _start_session(username)
@@ -155,7 +169,7 @@ def create_app():
                 store.record_acknowledgment(session["user"])
                 session["acknowledged"] = True
                 return redirect(url_for("questionnaire"))
-            flash("You must acknowledge the terms to continue.", "error")
+            flash(_t("terms_must_ack"), "error")
         return render_template("terms.html")
 
     # ---- Preview (no data entry required) ----------------------------------

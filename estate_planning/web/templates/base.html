@@ -1,29 +1,48 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ ui_lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Estate Planning — Thailand{% endblock %}</title>
+  <title>{% block title %}{{ t('brand') }}{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    // Apply saved theme before paint to avoid a flash.
+    (function () {
+      try {
+        var saved = localStorage.getItem('theme');
+        var dark = saved ? saved === 'dark'
+          : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="{{ url_for('index') }}">Estate Planning · Thailand</a>
+    <a class="brand" href="{{ url_for('index') }}">{{ t('brand') }}</a>
     <nav>
+      {% if session.get('user') and session.get('acknowledged') %}
+        <a href="{{ url_for('questionnaire') }}">{{ t('nav_questionnaire') }}</a>
+        <a href="{{ url_for('preview') }}">{{ t('nav_preview') }}</a>
+      {% endif %}
+      <span class="lang-switch">
+        {% for l in ui_langs %}
+          <a href="{{ url_for('set_language', lang=l) }}"
+             class="{{ 'active' if l == ui_lang }}">{{ 'EN' if l == 'en' else 'ไทย' }}</a>
+        {% endfor %}
+      </span>
+      <button type="button" id="theme-toggle" class="theme-toggle"
+              title="{{ t('theme_toggle') }}" aria-label="{{ t('theme_toggle') }}">
+        <span class="theme-icon">🌙</span>
+      </button>
       {% if session.get('user') %}
-        {% if session.get('acknowledged') %}
-          <a href="{{ url_for('questionnaire') }}">Questionnaire</a>
-          <a href="{{ url_for('preview') }}">Preview</a>
-        {% endif %}
         <span class="user">{{ session['user'] }}</span>
-        <a href="{{ url_for('logout') }}">Log out</a>
+        <a href="{{ url_for('logout') }}">{{ t('nav_logout') }}</a>
       {% endif %}
     </nav>
   </header>
 
-  <div class="banner">
-    Not legal advice · Not yet reviewed by a lawyer · Drafts only — verify with a licensed Thai probate/estate lawyer before signing.
-  </div>
+  <div class="banner">{{ t('banner') }}</div>
 
   <main class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -39,10 +58,32 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="site-footer">
-    Informational tool encoding publicly available Thai statutory rules. No
-    attorney–client relationship is created. Use at your own discretion.
-  </footer>
+  <footer class="site-footer">{{ t('footer') }}</footer>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      var icon = btn ? btn.querySelector('.theme-icon') : null;
+      function sync() {
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (icon) icon.textContent = dark ? '☀️' : '🌙';
+      }
+      sync();
+      if (btn) {
+        btn.addEventListener('click', function () {
+          var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+          if (dark) {
+            document.documentElement.removeAttribute('data-theme');
+            try { localStorage.setItem('theme', 'light'); } catch (e) {}
+          } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            try { localStorage.setItem('theme', 'dark'); } catch (e) {}
+          }
+          sync();
+        });
+      }
+    })();
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
