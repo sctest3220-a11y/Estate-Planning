@@ -106,7 +106,12 @@ TRANSLATIONS = {
         "th": "ระบุทรัพย์สินด้านล่าง หรือดาวน์โหลดแม่แบบเพื่อกรอกออฟไลน์แล้วอัปโหลด",
     },
     "q_download_template": {"en": "⬇ Download CSV template", "th": "⬇ ดาวน์โหลดแม่แบบ CSV"},
-    "q_upload_csv": {"en": "Upload a filled asset sheet (CSV)", "th": "อัปโหลดบัญชีทรัพย์สินที่กรอกแล้ว (CSV)"},
+    "q_upload_csv": {"en": "⬆ Upload filled sheet (CSV)", "th": "⬆ อัปโหลดไฟล์ที่กรอกแล้ว (CSV)"},
+    "q_upload_hint": {
+        "en": "The uploaded sheet is imported when you submit this form (the button at the bottom). You can also type assets directly below.",
+        "th": "ไฟล์ที่อัปโหลดจะถูกนำเข้าเมื่อท่านส่งแบบฟอร์มนี้ (ปุ่มด้านล่าง) หรือจะพิมพ์ทรัพย์สินด้านล่างโดยตรงก็ได้",
+    },
+    "q_upload_chosen": {"en": "Selected file:", "th": "ไฟล์ที่เลือก:"},
     "q_add_asset": {"en": "+ Add asset", "th": "+ เพิ่มทรัพย์สิน"},
     "q_asset_category": {"en": "Category", "th": "หมวดหมู่"},
     "q_asset_description": {"en": "Description", "th": "รายละเอียด"},

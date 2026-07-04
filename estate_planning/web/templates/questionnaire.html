@@ -131,12 +131,16 @@
     <fieldset data-docs="last_will asset_inventory">
       <legend>{{ t('q_assets_sheet_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
       <p class="muted">{{ t('q_assets_sheet_hint') }}</p>
-      <p>
+      <div class="asset-actions">
         <a class="button-link" href="{{ url_for('asset_template') }}">{{ t('q_download_template') }}</a>
-      </p>
-      <label>{{ t('q_upload_csv') }}
-        <input type="file" name="asset_csv" accept=".csv,text/csv">
-      </label>
+        <label class="button-link file-btn">
+          {{ t('q_upload_csv') }}
+          <input type="file" name="asset_csv" accept=".csv,text/csv"
+                 onchange="document.getElementById('asset-file-name').textContent = this.files.length ? ('{{ t('q_upload_chosen') }} ' + this.files[0].name) : '';">
+        </label>
+        <span id="asset-file-name" class="muted"></span>
+      </div>
+      <p class="muted">{{ t('q_upload_hint') }}</p>
       <div id="assets"></div>
       <button type="button" class="secondary" onclick="addAsset()">{{ t('q_add_asset') }}</button>
     </fieldset>

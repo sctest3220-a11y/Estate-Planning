@@ -251,6 +251,23 @@ input[type=file] {
   color: var(--ink);
 }
 
+/* Asset sheet: download + upload as a matched pair of buttons */
+.asset-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 0.25rem 0 0.5rem;
+}
+.file-btn { cursor: pointer; margin: 0; font-weight: 400; }
+.file-btn input[type=file] {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0);
+  border: 0;
+}
+
 /* Header: language switch + theme toggle */
 .lang-switch { display: inline-flex; gap: 0.25rem; align-items: center; font-size: 0.85rem; }
 .lang-switch a {
