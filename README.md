@@ -54,10 +54,12 @@ Features:
   wishes. Each is phrased within Thailand's Section 12 framework (terminal stage,
   passive refusal only — active euthanasia is illegal) and the UI + document carry a
   prominent note to confirm each directive with the hospital and a Thai lawyer.
-- **Asset sheet** — itemize assets (category, description, value, location, notes)
-  three ways: fill in online, or **download a CSV template** (`/asset-template.csv`)
-  to complete offline in Excel/Sheets and **upload** it back. Assets flow into the
-  Asset Inventory document (as a table with a total) and the tax estimate.
+- **Asset sheet** — itemize assets three ways: fill in online, **download a
+  multi-tab Excel template** (`/asset-template.xlsx`, one tab per asset category with
+  category-specific fields and required columns marked `*`) to complete offline, or
+  **upload** the filled `.xlsx` (or a `.csv`) back. Assets flow into the Asset
+  Inventory document (a table with a total and per-category detail) and the tax
+  estimate.
 - **Inheritance tax planning** — estimates tax per beneficiary (only the excess over
   100M THB is taxed; 5% for descendants/ascendants, 10% for others; spouses exempt),
   shows total estate and total tax, and gives planning suggestions: inherited assets

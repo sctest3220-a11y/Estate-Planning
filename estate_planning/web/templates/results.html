@@ -77,6 +77,7 @@
         <input type="hidden" name="asset_value" value="{{ a.value_thb }}">
         <input type="hidden" name="asset_location" value="{{ a.location }}">
         <input type="hidden" name="asset_notes" value="{{ a.notes }}">
+        <input type="hidden" name="asset_details" value="{{ a.details | attr_json }}">
       {% endfor %}
       <button type="submit">{{ t('r_download') }}</button>
     </form>

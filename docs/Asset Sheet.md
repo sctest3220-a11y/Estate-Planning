@@ -8,12 +8,19 @@ Related: [[Inheritance Tax]], [[Tips]], [[User Guide]].
 
 1. **Online** — add rows in the questionnaire (category, description, value,
    location, notes).
-2. **Offline** — download the CSV template (`/asset-template.csv`), fill it in
-   Excel / Google Sheets / Numbers.
-3. **Upload** — submit the filled CSV; rows are parsed and merged.
+2. **Offline** — download the **Excel template** (`/asset-template.xlsx`): a
+   multi-tab workbook with **one tab per asset category**, each with
+   category-specific columns and **required fields marked `*`** (shaded), plus an
+   Instructions tab. Fill in the tabs that apply in Excel / Google Sheets / Numbers.
+3. **Upload** — submit the filled `.xlsx` (a plain `.csv` also works); rows are
+   parsed across all tabs and merged.
 
-Categories: real estate, vehicle, bank account, investment/retirement, insurance,
-business, digital asset, other.
+Categories (one tab each): real estate, vehicle, bank account, investment,
+insurance, business, digital asset, other. Each tab has extra optional fields — e.g.
+a bank account captures bank name, account number, account type, branch, and
+currency; insurance captures insurer, policy number, policy type, and beneficiary.
+Field schemas live in `asset_schema.py`; the workbook is built and parsed in
+`asset_workbook.py` (see [[Architecture]]).
 
 ## Where assets go
 
@@ -29,8 +36,15 @@ For land and buildings, value by the **official government appraised value
 <https://assessprice.treasury.go.th>. This note also appears in the Asset Inventory
 document's real-estate section and in [[Tips]].
 
-## CSV format
+## Details preservation
 
-Columns: `category, description, value_thb, location, notes`. The parser skips the
-header, comment rows starting with `#`, and blank rows, and maps either the category
-key or its English label. See `tests/test_assets_csv.py`.
+Each parsed asset keeps a `details` dict of its category-specific fields. On the
+results page these are re-emitted as a JSON hidden field so the **download
+regenerates the full detail** without re-uploading — still nothing is stored
+server-side. See `tests/test_asset_workbook.py`.
+
+## Legacy CSV
+
+A flat CSV template/parser (`assets_csv.py`) still exists and `.csv` uploads are
+still accepted — columns `category, description, value_thb, location, notes`. The
+Excel workbook is the richer, recommended template.

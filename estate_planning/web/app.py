@@ -32,7 +32,8 @@ from ..documents import (
     document_title,
     generate,
 )
-from ..assets_csv import parse_csv, template_csv
+from ..asset_workbook import parse_workbook, template_xlsx
+from ..assets_csv import parse_csv
 from ..models import ASSET_CATEGORIES, STATUS_CHOICES, RELATIONSHIP_CHOICES
 from ..sample import sample_plan
 from ..tax import tax_plan
@@ -56,6 +57,15 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = os.environ.get("ESTATE_SECRET_KEY", "dev-only-change-me")
     google_auth.init_app(app)
+
+    @app.template_filter("attr_json")
+    def attr_json(value):
+        """JSON-encode a value, escaped for safe use inside an HTML attribute."""
+        import json
+
+        from markupsafe import escape
+
+        return escape(json.dumps(value, ensure_ascii=False))
 
     @app.template_filter("urlize_links")
     def urlize_links(text):
@@ -200,15 +210,15 @@ def create_app():
 
     # ---- Asset sheet template (offline) ------------------------------------
 
-    @app.route("/asset-template.csv")
+    @app.route("/asset-template.xlsx")
     @login_required
     @terms_required
     def asset_template():
         return Response(
-            template_csv(),
-            mimetype="text/csv",
+            template_xlsx(),
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             headers={
-                "Content-Disposition": "attachment; filename=asset_sheet_template.csv"
+                "Content-Disposition": "attachment; filename=asset_sheet_template.xlsx"
             },
         )
 
@@ -246,11 +256,16 @@ def create_app():
                     relationships=RELATIONSHIP_CHOICES,
                     form=request.form,
                 )
-            # Merge an uploaded asset-sheet CSV, if provided (non-fatal on error).
+            # Merge an uploaded asset sheet, if provided (non-fatal on error).
+            # Accepts the multi-tab .xlsx template or a plain .csv.
             upload = request.files.get("asset_csv")
             if upload and upload.filename:
                 try:
-                    plan.assets.extend(parse_csv(upload.read().decode("utf-8-sig")))
+                    raw = upload.read()
+                    if upload.filename.lower().endswith(".xlsx"):
+                        plan.assets.extend(parse_workbook(raw))
+                    else:
+                        plan.assets.extend(parse_csv(raw.decode("utf-8-sig")))
                 except Exception:
                     flash(_t("flash_csv_failed"), "error")
             mode = parse_language(request.form)

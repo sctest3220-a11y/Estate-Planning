@@ -135,7 +135,7 @@
         <a class="button-link" href="{{ url_for('asset_template') }}">{{ t('q_download_template') }}</a>
         <label class="button-link file-btn">
           {{ t('q_upload_csv') }}
-          <input type="file" name="asset_csv" accept=".csv,text/csv"
+          <input type="file" name="asset_csv" accept=".xlsx,.csv"
                  onchange="document.getElementById('asset-file-name').textContent = this.files.length ? ('{{ t('q_upload_chosen') }} ' + this.files[0].name) : '';">
         </label>
         <span id="asset-file-name" class="muted"></span>

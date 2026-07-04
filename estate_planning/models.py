@@ -56,6 +56,8 @@ class Asset:
     value_thb: float = 0.0
     location: str = ""
     notes: str = ""
+    # Category-specific fields keyed by schema key (see asset_schema.py).
+    details: dict = field(default_factory=dict)
 
 
 @dataclass

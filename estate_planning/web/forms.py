@@ -3,6 +3,8 @@
 Mirrors the questionnaire flow in estate_planning/cli.py.
 """
 
+import json
+
 from ..documents import (
     DOCUMENT_SPECS,
     LANGUAGE_MODES,
@@ -108,19 +110,21 @@ def build_plan(form):
             )
         )
 
-    # Itemized assets (online rows or carried from an uploaded CSV).
+    # Itemized assets (online rows, or carried back from an uploaded sheet).
     assets = []
     a_cats = form.getlist("asset_category")
     a_descs = form.getlist("asset_description")
     a_values = form.getlist("asset_value")
     a_locs = form.getlist("asset_location")
     a_notes = form.getlist("asset_notes")
+    a_details = form.getlist("asset_details")
     for i, cat in enumerate(a_cats):
         desc = a_descs[i].strip() if i < len(a_descs) and a_descs[i] else ""
         raw_value = a_values[i] if i < len(a_values) else "0"
         loc = a_locs[i].strip() if i < len(a_locs) and a_locs[i] else ""
         note = a_notes[i].strip() if i < len(a_notes) and a_notes[i] else ""
-        if not any([cat.strip(), desc, (raw_value or "").strip(), loc, note]):
+        # A row with only a default category and nothing else is empty.
+        if not any([desc, (raw_value or "").strip(), loc, note]):
             continue
         try:
             value = _parse_value(raw_value)
@@ -131,6 +135,14 @@ def build_plan(form):
             errors.append("Asset values cannot be negative.")
             value = 0.0
         category = cat.strip() if cat.strip() in ASSET_CATEGORIES else "other"
+        details = {}
+        if i < len(a_details) and a_details[i]:
+            try:
+                loaded = json.loads(a_details[i])
+                if isinstance(loaded, dict):
+                    details = {str(k): str(v) for k, v in loaded.items()}
+            except (ValueError, TypeError):
+                details = {}
         assets.append(
             Asset(
                 category=category,
@@ -138,6 +150,7 @@ def build_plan(form):
                 value_thb=value,
                 location=loc,
                 notes=note,
+                details=details,
             )
         )
 

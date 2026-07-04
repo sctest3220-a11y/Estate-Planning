@@ -4,7 +4,29 @@ All output is a DRAFT for review by a licensed Thai probate/estate lawyer before
 signing or witnessing. Nothing produced here is legal advice.
 """
 
+from .asset_schema import ASSET_FIELD_SCHEMA, field_label
 from .models import ASSET_CATEGORIES, EstatePlan
+
+
+def _cell(value):
+    """Escape a value for a Markdown table cell."""
+    return str(value).replace("|", r"\|").replace("\n", " ").strip()
+
+
+def _asset_detail_text(asset, mode):
+    """Notes cell text: category-specific detail fields plus the user's notes."""
+    schema = ASSET_FIELD_SCHEMA.get(asset.category)
+    parts = []
+    if schema:
+        skip = {schema["primary"], schema["reference"], "value_thb", "notes"}
+        for key, value in asset.details.items():
+            if key in skip:
+                continue
+            parts.append(f"{field_label(asset.category, key, mode)}: {value}")
+    extra = "; ".join(parts)
+    if extra and asset.notes:
+        return f"{extra}; {asset.notes}"
+    return extra or asset.notes
 
 MODE_EN = "en"
 MODE_TH = "th"
@@ -365,7 +387,8 @@ def render_asset_inventory(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
             cat = ASSET_CATEGORIES.get(a.category, a.category)
             value = f"{a.value_thb:,.0f}" if a.value_thb else ""
             out += (
-                f"| {cat} | {a.description} | {value} | {a.location} | {a.notes} |\n"
+                f"| {_cell(cat)} | {_cell(a.description)} | {value} "
+                f"| {_cell(a.location)} | {_cell(_asset_detail_text(a, mode))} |\n"
             )
         out += (
             f"\n**{_lbl(mode, 'Total listed value', 'มูลค่ารวมที่ระบุ')}: "

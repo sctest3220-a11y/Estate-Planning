@@ -14,7 +14,9 @@ overview.
 - `documents.py` — language-aware document renderers (English / Thai / dual) via
   `_t()` / `_lbl()` helpers, `generate(plan, keys, mode)`, `DOCUMENT_SPECS`, and
   `LIVING_WILL_OPTIONS` (see [[Living Will Directives]]).
-- `assets_csv.py` — CSV template + upload parser for the [[Asset Sheet]].
+- `asset_schema.py` — per-category field definitions (labels + required flags).
+- `asset_workbook.py` — multi-tab Excel template + upload parser for the [[Asset Sheet]].
+- `assets_csv.py` — legacy flat-CSV template + parser (still accepted on upload).
 - `sample.py` — a placeholder plan used for the blank-template preview.
 - `cli.py` — interactive command-line questionnaire.
 
