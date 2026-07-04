@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Preview templates · Estate Planning{% endblock %}
+{% block content %}
+<div class="card">
+  <div class="results-head">
+    <h1>Preview blank templates</h1>
+    <a class="button-link" href="{{ url_for('questionnaire') }}">Fill in my details →</a>
+  </div>
+  <p class="muted">These are the document templates with <code>[placeholders]</code>
+  where your details would go. No information is required to view them. Choose which
+  documents and which language to preview, then generate the real drafts from the
+  questionnaire.</p>
+
+  <form method="get" action="{{ url_for('preview') }}" class="preview-controls">
+    <div class="control-group">
+      <strong>Documents</strong>
+      {% for key, en_title, local_title in doc_catalog %}
+        <label class="checkbox">
+          <input type="checkbox" name="documents" value="{{ key }}"
+            {{ 'checked' if key in selected else '' }}>
+          {{ local_title }}
+        </label>
+      {% endfor %}
+    </div>
+    <div class="control-group">
+      <strong>Language</strong>
+      {% for m in language_modes %}
+        <label class="checkbox">
+          <input type="radio" name="language" value="{{ m }}" {{ 'checked' if m == mode }}>
+          {{ language_labels[m] }}
+        </label>
+      {% endfor %}
+    </div>
+    <button type="submit" class="secondary">Update preview</button>
+  </form>
+</div>
+
+<div class="card">
+  {% for key, (title, content) in documents.items() %}
+  <details {% if loop.first %}open{% endif %}>
+    <summary>{{ title }}</summary>
+    <pre class="document">{{ content }}</pre>
+  </details>
+  {% endfor %}
+</div>
+{% endblock %}

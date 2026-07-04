@@ -23,9 +23,19 @@ python3 -m venv .venv
 ./.venv/bin/python -m flask --app estate_planning.web.app run --port 5001
 ```
 
-Then open http://127.0.0.1:5001. The flow is: register → log in → **acknowledge
-the terms** (a required gate stating this is not legal advice and unreviewed) →
-questionnaire → advice + draft documents → download all as a ZIP.
+Then open http://127.0.0.1:5001. The flow is: log in (local account or Google) →
+**acknowledge the terms** (a required gate stating this is not legal advice and
+unreviewed) → questionnaire → advice + draft documents → download as a ZIP.
+
+Features:
+
+- **Choose documents** — generate any subset of Last Will, Living Will, Medical POA,
+  and Asset Inventory, or all of them.
+- **Choose language** — English, Thai, or dual (English + Thai) output.
+- **Preview blank templates** — see every document with `[placeholders]` at
+  `/preview`, in any language, without entering any personal data.
+- **Mandatory vs optional fields** — only full name and status are required; every
+  other field is marked optional and can be left blank to fill in by hand.
 
 **Privacy by design:** estate-planning inputs (names, passport numbers,
 beneficiaries, asset values) are processed in memory per request and are **never
@@ -34,10 +44,19 @@ credentials (hashed) and a terms-acknowledgment timestamp, in a gitignored
 `users.json`. The download re-posts your own form data rather than reading it from
 the server.
 
-Set these environment variables in any real deployment:
+### Configuration (environment variables)
 
-- `ESTATE_SECRET_KEY` — Flask session signing key (required; the default is for dev only).
+- `ESTATE_SECRET_KEY` — Flask session signing key (required in production; the default is dev-only).
 - `ESTATE_USER_STORE` — path to the credentials file (point at a writable volume).
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` — enable "Sign in with Google". If unset,
+  the Google button is hidden and local accounts still work.
+
+**Setting up Google sign-in:** In [Google Cloud Console](https://console.cloud.google.com/)
+→ APIs & Services → Credentials, create an **OAuth 2.0 Client ID** of type *Web
+application*. Add your callback URL to *Authorized redirect URIs*
+(`http://127.0.0.1:5001/auth/google/callback` for local dev, or
+`https://your-domain/auth/google/callback` in production). Put the generated client ID
+and secret in the two env vars above. Configure the OAuth consent screen as well.
 
 ### CLI
 
@@ -48,9 +67,10 @@ python3 -m estate_planning.cli
 ```
 
 It prints tailored advice (dual-will strategy, land/condo restrictions for foreign
-heirs, unregistered marriage, overseas executor, inheritance-tax estimate) and
-writes bilingual draft documents (Last Will, Living Will, Medical POA, Asset
-Inventory) to `output/<name>_<timestamp>/`.
+heirs, unregistered marriage, overseas executor, inheritance-tax estimate), lets you
+choose which documents and which language (English / Thai / dual), and writes the
+draft documents (Last Will, Living Will, Medical POA, Asset Inventory) to
+`output/<name>_<timestamp>/`.
 
 `output/` is gitignored since drafts contain personal information — nothing there
 is committed.
@@ -61,9 +81,11 @@ is committed.
 - `estate_planning/models.py` — shared data model (`EstatePlan`, `Beneficiary`, `Witness`).
 - `estate_planning/advice.py` — rules engine that turns a profile into warnings/recommendations/tax estimates.
 - `estate_planning/documents.py` — bilingual document renderers.
+- `estate_planning/documents.py` — language-aware (English/Thai/dual) document renderers + `generate()`.
+- `estate_planning/sample.py` — placeholder plan used for the blank-template preview.
 - `estate_planning/cli.py` — interactive questionnaire entry point.
-- `estate_planning/web/` — Flask web app (`app.py` routes, `forms.py` form→plan parsing, `store.py` credential store, `templates/`, `static/`).
-- `tests/` — unit tests for the rules engine and web form parsing (`python3 -m unittest discover -s tests`).
+- `estate_planning/web/` — Flask web app (`app.py` routes, `forms.py` form→plan parsing, `store.py` credential store, `google_auth.py` Google OAuth, `templates/`, `static/`).
+- `tests/` — unit tests for the rules engine, document language modes, and web form parsing (`python3 -m unittest discover -s tests`).
 
 ## Sync
 

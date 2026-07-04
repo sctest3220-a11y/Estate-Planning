@@ -7,7 +7,15 @@ Not legal advice. Review all output with a licensed Thai probate/estate lawyer.
 import os
 from datetime import datetime
 
-from .documents import DISCLAIMER_EN, DISCLAIMER_TH, DOCUMENT_RENDERERS
+from .documents import (
+    DISCLAIMER_EN,
+    DISCLAIMER_TH,
+    DOCUMENT_SPECS,
+    LANGUAGE_LABELS,
+    LANGUAGE_MODES,
+    MODE_DUAL,
+    generate,
+)
 from .models import (
     STATUS_CHOICES,
     STATUS_FOREIGN_RESIDENT,
@@ -196,9 +204,9 @@ def print_advice(advice):
 
 def choose_documents():
     print("\nAvailable documents:")
-    keys = list(DOCUMENT_RENDERERS.keys())
+    keys = list(DOCUMENT_SPECS.keys())
     for i, key in enumerate(keys, 1):
-        print(f"  {i}. {DOCUMENT_RENDERERS[key][0]} ({key})")
+        print(f"  {i}. {DOCUMENT_SPECS[key][0]} ({key})")
     raw = ask(
         "Which documents to generate? Comma-separated numbers or names, blank for all",
         "all",
@@ -217,13 +225,22 @@ def choose_documents():
     return selected or keys
 
 
-def write_documents(plan: EstatePlan, selected_keys, output_dir):
+def choose_language():
+    print("\nLanguage for the documents:")
+    for i, mode in enumerate(LANGUAGE_MODES, 1):
+        print(f"  {i}. {LANGUAGE_LABELS[mode]} ({mode})")
+    raw = ask("Choose a language", MODE_DUAL)
+    token = raw.strip().lower()
+    if token.isdigit() and 1 <= int(token) <= len(LANGUAGE_MODES):
+        return LANGUAGE_MODES[int(token) - 1]
+    return token if token in LANGUAGE_MODES else MODE_DUAL
+
+
+def write_documents(plan: EstatePlan, selected_keys, mode, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     written = []
-    for key in selected_keys:
-        title, render = DOCUMENT_RENDERERS[key]
-        content = render(plan)
-        path = os.path.join(output_dir, f"{key}.md")
+    for key, (_title, content) in generate(plan, selected_keys, mode).items():
+        path = os.path.join(output_dir, f"{key}_{mode}.md")
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
         written.append(path)
@@ -236,10 +253,11 @@ def main():
     print_advice(advice)
 
     selected_keys = choose_documents()
+    mode = choose_language()
     safe_name = "".join(c if c.isalnum() else "_" for c in plan.full_name).strip("_") or "draft"
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_dir = os.path.join("output", f"{safe_name}_{timestamp}")
-    written = write_documents(plan, selected_keys, output_dir)
+    written = write_documents(plan, selected_keys, mode, output_dir)
 
     print("\n" + "=" * 70)
     print(f"Draft documents written to {output_dir}/:")

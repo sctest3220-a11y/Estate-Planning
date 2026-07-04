@@ -11,33 +11,61 @@
 
 {% block content %}
 <div class="card">
-  <h1>Estate planning questionnaire</h1>
-  <p class="muted">Answer what applies. Fields can be left blank and filled in on the
-  draft later. Nothing you enter is saved on the server.</p>
+  <div class="results-head">
+    <h1>Estate planning questionnaire</h1>
+    <a class="button-link" href="{{ url_for('preview') }}">Preview blank templates →</a>
+  </div>
+  <p class="muted">Only fields marked <span class="req">*</span> are required. Everything
+  else is optional — leave a blank to fill it in by hand on the printed draft.
+  Nothing you enter is saved on the server.</p>
 
   <form method="post" action="{{ url_for('questionnaire') }}">
+
+    <fieldset>
+      <legend>Documents to create</legend>
+      <p class="muted">Choose which documents to generate. All are selected by default.</p>
+      {% for key, en_title, local_title in doc_catalog %}
+        <label class="checkbox">
+          <input type="checkbox" name="documents" value="{{ key }}"
+            {{ 'checked' if (not form or key in form.getlist('documents')) else '' }}>
+          {{ local_title }}
+        </label>
+      {% endfor %}
+    </fieldset>
+
+    <fieldset>
+      <legend>Language</legend>
+      {% for m in language_modes %}
+        <label class="checkbox">
+          <input type="radio" name="language" value="{{ m }}"
+            {{ 'checked' if (form.get('language', 'dual') == m) }}>
+          {{ language_labels[m] }}
+        </label>
+      {% endfor %}
+    </fieldset>
+
     <fieldset>
       <legend>About you</legend>
-      <label>Full legal name
+      <label>Full legal name <span class="req">*</span>
         <input type="text" name="full_name" value="{{ form.get('full_name', '') }}" required>
       </label>
       <div class="row">
-        <label>Nationality
+        <label>Nationality <span class="opt">optional</span>
           <input type="text" name="nationality" value="{{ form.get('nationality', '') }}">
         </label>
-        <label>Passport / ID number
+        <label>Passport / ID number <span class="opt">optional</span>
           <input type="text" name="passport_or_id_number" value="{{ form.get('passport_or_id_number', '') }}">
         </label>
       </div>
       <div class="row">
-        <label>Date of birth
+        <label>Date of birth <span class="opt">optional</span>
           <input type="date" name="date_of_birth" value="{{ form.get('date_of_birth', '') }}">
         </label>
-        <label>Address in Thailand
+        <label>Address in Thailand <span class="opt">optional</span>
           <input type="text" name="thai_address" value="{{ form.get('thai_address', '') }}">
         </label>
       </div>
-      <label>Which status applies to you?
+      <label>Which status applies to you? <span class="req">*</span>
         <select name="status" required>
           <option value="">— choose —</option>
           <option value="thai_national" {{ 'selected' if form.get('status')=='thai_national' }}>Thai national</option>
@@ -48,13 +76,13 @@
     </fieldset>
 
     <fieldset>
-      <legend>Existing documents</legend>
+      <legend>Existing documents <span class="opt">optional</span></legend>
       <label class="checkbox"><input type="checkbox" name="has_thai_will" {{ 'checked' if form.get('has_thai_will') }}> I already have a Thai will</label>
       <label class="checkbox"><input type="checkbox" name="has_foreign_will" {{ 'checked' if form.get('has_foreign_will') }}> I already have a foreign (home-country) will</label>
     </fieldset>
 
     <fieldset>
-      <legend>Assets &amp; family (skip if occasional visitor)</legend>
+      <legend>Assets &amp; family <span class="opt">optional — skip if occasional visitor</span></legend>
       <label class="checkbox"><input type="checkbox" name="owns_land" {{ 'checked' if form.get('owns_land') }}> I own land in Thailand</label>
       <label class="checkbox"><input type="checkbox" name="owns_condo" {{ 'checked' if form.get('owns_condo') }}> I own a condominium unit in Thailand</label>
       <label class="checkbox"><input type="checkbox" name="has_lease" {{ 'checked' if form.get('has_lease') }}> I hold a lease in Thailand</label>
@@ -62,7 +90,7 @@
         {{ tristate('lease_succession', form.get('lease_succession')) }}
       </label>
       <label class="checkbox"><input type="checkbox" name="married_to_thai" {{ 'checked' if form.get('married_to_thai') }}> I am married to a Thai national</label>
-      <label>Spouse's full name
+      <label>Spouse's full name <span class="opt">optional</span>
         <input type="text" name="spouse_name" value="{{ form.get('spouse_name', '') }}">
       </label>
       <label>Is the marriage registered at the Amphur (Section 1457)?
@@ -71,26 +99,26 @@
     </fieldset>
 
     <fieldset>
-      <legend>People to designate</legend>
-      <label>Executor's full name
+      <legend>People to designate <span class="opt">optional</span></legend>
+      <label>Executor's full name <span class="opt">optional</span>
         <input type="text" name="executor_name" value="{{ form.get('executor_name', '') }}">
       </label>
       <label>Is the executor based in Thailand?
         {{ tristate('executor_in_thailand', form.get('executor_in_thailand')) }}
       </label>
-      <label>Healthcare proxy's full name
+      <label>Healthcare proxy's full name <span class="opt">optional</span>
         <input type="text" name="healthcare_proxy_name" value="{{ form.get('healthcare_proxy_name', '') }}">
       </label>
     </fieldset>
 
     <fieldset>
-      <legend>Witnesses <span class="muted">(at least 2 recommended)</span></legend>
+      <legend>Witnesses <span class="opt">optional — at least 2 recommended for a will</span></legend>
       <div id="witnesses"></div>
       <button type="button" class="secondary" onclick="addWitness()">+ Add witness</button>
     </fieldset>
 
     <fieldset>
-      <legend>Beneficiaries</legend>
+      <legend>Beneficiaries <span class="opt">optional</span></legend>
       <div id="beneficiaries"></div>
       <button type="button" class="secondary" onclick="addBeneficiary()">+ Add beneficiary</button>
     </fieldset>

@@ -11,6 +11,10 @@
     <a class="brand" href="{{ url_for('index') }}">Estate Planning · Thailand</a>
     <nav>
       {% if session.get('user') %}
+        {% if session.get('acknowledged') %}
+          <a href="{{ url_for('questionnaire') }}">Questionnaire</a>
+          <a href="{{ url_for('preview') }}">Preview</a>
+        {% endif %}
         <span class="user">{{ session['user'] }}</span>
         <a href="{{ url_for('logout') }}">Log out</a>
       {% endif %}

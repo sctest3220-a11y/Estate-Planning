@@ -3,6 +3,7 @@
 Mirrors the questionnaire flow in estate_planning/cli.py.
 """
 
+from ..documents import DOCUMENT_SPECS, LANGUAGE_MODES, MODE_DUAL
 from ..models import (
     STATUS_CHOICES,
     STATUS_VISITOR,
@@ -11,6 +12,18 @@ from ..models import (
     EstatePlan,
     Witness,
 )
+
+
+def parse_language(form):
+    """Return a valid language mode, defaulting to dual."""
+    mode = form.get("language")
+    return mode if mode in LANGUAGE_MODES else MODE_DUAL
+
+
+def parse_selected_docs(form):
+    """Return the list of selected document keys (all if none selected)."""
+    selected = [k for k in form.getlist("documents") if k in DOCUMENT_SPECS]
+    return selected or list(DOCUMENT_SPECS.keys())
 
 
 def _checkbox(form, name):

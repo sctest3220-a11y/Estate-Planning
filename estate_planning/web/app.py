@@ -1,5 +1,5 @@
 """Flask app: login-gated, terms-acknowledged questionnaire that produces
-Thai-law advice and draft documents.
+Thai-law advice and draft documents in English, Thai, or dual language.
 
 Privacy: estate-planning inputs are processed in memory per request and are
 never written to disk or stored server-side. Only account credentials and a
@@ -23,17 +23,44 @@ from flask import (
 )
 
 from ..advice import assess
-from ..documents import DOCUMENT_RENDERERS
+from ..documents import (
+    DOCUMENT_SPECS,
+    LANGUAGE_LABELS,
+    LANGUAGE_MODES,
+    MODE_DUAL,
+    document_title,
+    generate,
+)
 from ..models import STATUS_CHOICES, RELATIONSHIP_CHOICES
-from .forms import build_plan
+from ..sample import sample_plan
+from . import google_auth
+from .forms import build_plan, parse_language, parse_selected_docs
 from .store import UserStore
 
 store = UserStore()
 
 
+def _doc_catalog(mode=MODE_DUAL):
+    """[(key, english_title, localized_title), ...] for building selection UIs."""
+    return [
+        (key, spec[0], document_title(key, mode)) for key, spec in DOCUMENT_SPECS.items()
+    ]
+
+
 def create_app():
     app = Flask(__name__)
     app.secret_key = os.environ.get("ESTATE_SECRET_KEY", "dev-only-change-me")
+    google_auth.init_app(app)
+
+    # Make catalog + language options available to every template.
+    @app.context_processor
+    def inject_globals():
+        return {
+            "doc_catalog": _doc_catalog(),
+            "language_modes": LANGUAGE_MODES,
+            "language_labels": LANGUAGE_LABELS,
+            "google_enabled": google_auth.is_configured(),
+        }
 
     def login_required(view):
         @wraps(view)
@@ -61,12 +88,14 @@ def create_app():
             return redirect(url_for("terms"))
         return redirect(url_for("questionnaire"))
 
+    # ---- Authentication ----------------------------------------------------
+
     @app.route("/register", methods=["GET", "POST"])
     def register():
         if request.method == "POST":
-            username = request.form.get("username", "")
-            password = request.form.get("password", "")
-            ok, error = store.create_user(username, password)
+            ok, error = store.create_user(
+                request.form.get("username", ""), request.form.get("password", "")
+            )
             if ok:
                 flash("Account created. Please log in.", "success")
                 return redirect(url_for("login"))
@@ -79,13 +108,39 @@ def create_app():
             username = request.form.get("username", "")
             password = request.form.get("password", "")
             if store.verify(username, password):
-                session.clear()
-                session["user"] = username.strip().lower()
-                session["acknowledged"] = store.has_acknowledged(session["user"])
-                nxt = request.args.get("next") or url_for("index")
-                return redirect(nxt)
+                _start_session(username.strip().lower())
+                return redirect(request.args.get("next") or url_for("index"))
             flash("Invalid username or password.", "error")
         return render_template("login.html")
+
+    @app.route("/login/google")
+    def login_google():
+        if not google_auth.is_configured():
+            flash("Google sign-in is not configured on this server.", "error")
+            return redirect(url_for("login"))
+        redirect_uri = url_for("google_callback", _external=True)
+        return google_auth.authorize_redirect(redirect_uri)
+
+    @app.route("/auth/google/callback")
+    def google_callback():
+        if not google_auth.is_configured():
+            return redirect(url_for("login"))
+        try:
+            email = google_auth.fetch_email()
+        except Exception:
+            flash("Google sign-in failed. Please try again.", "error")
+            return redirect(url_for("login"))
+        if not email:
+            flash("Could not verify your Google email.", "error")
+            return redirect(url_for("login"))
+        username = store.create_or_get_google_user(email)
+        _start_session(username)
+        return redirect(url_for("index"))
+
+    def _start_session(username):
+        session.clear()
+        session["user"] = username
+        session["acknowledged"] = store.has_acknowledged(username)
 
     @app.route("/logout")
     def logout():
@@ -103,6 +158,25 @@ def create_app():
             flash("You must acknowledge the terms to continue.", "error")
         return render_template("terms.html")
 
+    # ---- Preview (no data entry required) ----------------------------------
+
+    @app.route("/preview")
+    @login_required
+    @terms_required
+    def preview():
+        mode = parse_language(request.args)
+        selected = [k for k in request.args.getlist("documents") if k in DOCUMENT_SPECS]
+        selected = selected or list(DOCUMENT_SPECS.keys())
+        documents = generate(sample_plan(), selected, mode)
+        return render_template(
+            "preview.html",
+            documents=documents,
+            selected=selected,
+            mode=mode,
+        )
+
+    # ---- Questionnaire, results, download ----------------------------------
+
     @app.route("/questionnaire", methods=["GET", "POST"])
     @login_required
     @terms_required
@@ -118,11 +192,10 @@ def create_app():
                     relationships=RELATIONSHIP_CHOICES,
                     form=request.form,
                 )
+            mode = parse_language(request.form)
+            selected = parse_selected_docs(request.form)
             advice = assess(plan)
-            documents = {
-                key: (title, render(plan))
-                for key, (title, render) in DOCUMENT_RENDERERS.items()
-            }
+            documents = generate(plan, selected, mode)
             return render_template(
                 "results.html",
                 advice=advice,
@@ -148,10 +221,14 @@ def create_app():
                 flash(e, "error")
             return redirect(url_for("questionnaire"))
 
+        mode = parse_language(request.form)
+        selected = parse_selected_docs(request.form)
+        documents = generate(plan, selected, mode)
+
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
-            for key, (title, render) in DOCUMENT_RENDERERS.items():
-                zf.writestr(f"{key}.md", render(plan))
+            for key, (_title, content) in documents.items():
+                zf.writestr(f"{key}_{mode}.md", content)
         buf.seek(0)
         return Response(
             buf.getvalue(),

@@ -69,9 +69,31 @@ class UserStore:
         with _LOCK:
             users = _load(self.path)
         user = users.get(username)
-        if not user:
+        if not user or not user.get("password_hash"):
+            # No password set (e.g. a Google account) — reject local login.
             return False
         return check_password_hash(user["password_hash"], password or "")
+
+    def create_or_get_google_user(self, email):
+        """Look up or create an account for a verified Google email.
+
+        The username is the email address; no password is stored. Returns the
+        username to place in the session.
+        """
+        username = (email or "").strip().lower()
+        if not username:
+            return None
+        with _LOCK:
+            users = _load(self.path)
+            if username not in users:
+                users[username] = {
+                    "password_hash": None,
+                    "provider": "google",
+                    "created_at": _now_iso(),
+                    "acknowledged_terms_at": None,
+                }
+                _save(self.path, users)
+        return username
 
     def record_acknowledgment(self, username):
         username = (username or "").strip().lower()
