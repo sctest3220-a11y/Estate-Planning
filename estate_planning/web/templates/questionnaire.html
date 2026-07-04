@@ -17,6 +17,12 @@
   </div>
   <p class="muted">{{ t('q_intro') }}</p>
 
+  <div id="draft-banner" class="draft-banner" style="display:none">
+    <span>{{ t('draft_found') }}</span>
+    <button type="button" class="secondary" onclick="resumeDraft()">{{ t('draft_resume') }}</button>
+    <button type="button" class="link-btn" onclick="discardDraft()">{{ t('draft_discard') }}</button>
+  </div>
+
   <form method="post" action="{{ url_for('questionnaire') }}" id="qform" enctype="multipart/form-data">
 
     <fieldset>
@@ -160,7 +166,12 @@
       <button type="button" class="secondary" onclick="addWitness()">{{ t('q_add_witness') }}</button>
     </fieldset>
 
-    <button type="submit">{{ t('q_submit') }}</button>
+    <div class="submit-row">
+      <button type="submit">{{ t('q_submit') }}</button>
+      <button type="button" class="secondary" onclick="saveDraft()">{{ t('save_draft') }}</button>
+      <span id="save-status" class="muted"></span>
+    </div>
+    <p class="muted">{{ t('save_note') }}</p>
   </form>
 </div>
 {% endblock %}
@@ -288,5 +299,72 @@
   addBeneficiary();
   addAsset();
   applyContext();
+
+  // ---- Save for later (browser localStorage only; never sent to the server) ----
+  const DRAFT_KEY = 'estate_draft';
+  const SAVED_MSG = {{ t('draft_saved') | tojson }};
+  const SIMPLE = ['full_name','nationality','passport_or_id_number','date_of_birth',
+    'thai_address','status','spouse_name','executor_name','healthcare_proxy_name','living_will_other'];
+  const CHECKS = ['has_thai_will','has_foreign_will','owns_land','owns_condo','has_lease','married_to_thai'];
+  const RADIOS = ['language','lease_succession','marriage_registered','executor_in_thailand'];
+
+  function serializeForm() {
+    const f = document.getElementById('qform');
+    const rows = (sel, fields) => [...f.querySelectorAll(sel)].map(r => {
+      const o = {}; for (const k in fields) { const el = r.querySelector(fields[k]); o[k] = el ? el.value : ''; } return o;
+    });
+    const data = {
+      text: {}, checks: {}, radios: {},
+      documents: [...f.querySelectorAll('input[name=documents]:checked')].map(c => c.value),
+      living_will_options: [...f.querySelectorAll('input[name=living_will_options]:checked')].map(c => c.value),
+      witnesses: rows('#witnesses .repeat-row', {name:'[name=witness_name]', id:'[name=witness_id]'}),
+      beneficiaries: rows('#beneficiaries .repeat-row', {name:'[name=beneficiary_name]', rel:'[name=beneficiary_relationship]', asset:'[name=beneficiary_asset]', value:'[name=beneficiary_value]'}),
+      assets: rows('#assets .repeat-row', {cat:'[name=asset_category]', desc:'[name=asset_description]', value:'[name=asset_value]', loc:'[name=asset_location]', ben:'[name=asset_beneficiary]', notes:'[name=asset_notes]'}),
+    };
+    SIMPLE.forEach(n => { if (f.elements[n]) data.text[n] = f.elements[n].value; });
+    CHECKS.forEach(n => { if (f.elements[n]) data.checks[n] = f.elements[n].checked; });
+    RADIOS.forEach(n => { if (f.elements[n]) data.radios[n] = f.elements[n].value; });
+    return data;
+  }
+
+  function restoreForm(data) {
+    const f = document.getElementById('qform');
+    Object.entries(data.text || {}).forEach(([n,v]) => { if (f.elements[n]) f.elements[n].value = v; });
+    Object.entries(data.checks || {}).forEach(([n,v]) => { if (f.elements[n]) f.elements[n].checked = !!v; });
+    f.querySelectorAll('input[name=documents]').forEach(cb => cb.checked = (data.documents||[]).includes(cb.value));
+    f.querySelectorAll('input[name=living_will_options]').forEach(cb => cb.checked = (data.living_will_options||[]).includes(cb.value));
+    Object.entries(data.radios || {}).forEach(([n,v]) => {
+      const el = f.querySelector('input[name=' + n + '][value="' + v + '"]'); if (el) el.checked = true;
+    });
+    document.getElementById('witnesses').innerHTML = '';
+    (data.witnesses && data.witnesses.length ? data.witnesses : [{},{}]).forEach(w => addWitness(w.name, w.id));
+    document.getElementById('beneficiaries').innerHTML = '';
+    (data.beneficiaries && data.beneficiaries.length ? data.beneficiaries : [{}]).forEach(b => addBeneficiary(b.name, b.rel, b.asset, b.value));
+    document.getElementById('assets').innerHTML = '';
+    (data.assets && data.assets.length ? data.assets : [{}]).forEach(a => addAsset(a.cat, a.desc, a.value, a.loc, a.notes, a.ben));
+    applyContext();
+    refreshAssetBeneficiaries();
+  }
+
+  function saveDraft() {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(serializeForm()));
+      document.getElementById('save-status').textContent = SAVED_MSG;
+    } catch (e) {}
+  }
+  function resumeDraft() {
+    try { const d = JSON.parse(localStorage.getItem(DRAFT_KEY)); if (d) restoreForm(d); } catch (e) {}
+    document.getElementById('draft-banner').style.display = 'none';
+  }
+  function discardDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+    document.getElementById('draft-banner').style.display = 'none';
+  }
+
+  try {
+    if (localStorage.getItem(DRAFT_KEY)) {
+      document.getElementById('draft-banner').style.display = '';
+    }
+  } catch (e) {}
 </script>
 {% endblock %}

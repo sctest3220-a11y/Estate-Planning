@@ -19,7 +19,19 @@ How to use the estate-planning tool. See [[Home]] for the overview and
    - For assets you can type rows, or use the [[Asset Sheet]] CSV template.
 6. **Review results** — tailored advice, warnings, an [[Inheritance Tax]] estimate,
    and general [[Tips]] (like the ราคาประเมิน land-valuation tip).
-7. **Download** — all selected documents as a ZIP of Markdown files.
+7. **Print or download** —
+   - **🖨 Print** opens a clean, print-ready HTML version of the documents (real
+     headings and tables) and the browser print dialog. Use your browser's
+     "Save as PDF" from there to get a PDF.
+   - **Download all as ZIP** saves the documents as Markdown files.
+
+## Save for later
+
+The questionnaire has a **💾 Save for later** button. It stores your answers in
+**your browser only** (localStorage) — nothing is sent to the server, consistent
+with the privacy model below. When you return, a banner offers to **Resume** or
+**Discard** the saved draft. An uploaded asset file is not saved — re-upload it
+when you resume.
 
 ### Interface options
 

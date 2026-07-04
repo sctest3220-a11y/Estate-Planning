@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="{{ ui_lang }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t('r_docs_title') }}</title>
+  <style>
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      color: #111;
+      max-width: 720px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      line-height: 1.5;
+    }
+    .toolbar {
+      display: flex; gap: 0.6rem; margin-bottom: 1.5rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .toolbar button, .toolbar a {
+      padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid #14562f;
+      background: #14562f; color: #fff; cursor: pointer; text-decoration: none;
+      font-size: 0.95rem;
+    }
+    .toolbar a.secondary { background: #fff; color: #14562f; }
+    .draft-note {
+      background: #fff7ed; border: 1px solid #f59e0b; color: #92400e;
+      padding: 0.6rem 0.9rem; border-radius: 6px; font-size: 0.85rem;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin-bottom: 1.5rem;
+    }
+    .doc { page-break-after: always; }
+    .doc:last-child { page-break-after: auto; }
+    .doc h1 { font-size: 1.5rem; }
+    .doc h2 { font-size: 1.15rem; margin-top: 1.4rem; border-bottom: 1px solid #ddd; padding-bottom: 0.2rem; }
+    .doc table { border-collapse: collapse; width: 100%; margin: 0.6rem 0; font-size: 0.9rem; }
+    .doc th, .doc td { border: 1px solid #bbb; padding: 0.35rem 0.5rem; text-align: left; }
+    .doc blockquote {
+      border-left: 3px solid #f59e0b; margin: 0.8rem 0; padding: 0.3rem 0.9rem;
+      color: #92400e; font-size: 0.9rem; font-style: italic;
+    }
+    .doc hr { border: none; border-top: 1px solid #ccc; margin: 1rem 0; }
+    @media print {
+      .toolbar { display: none; }
+      body { margin: 0; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">🖨 {{ t('print_now') }}</button>
+    <a class="secondary" href="{{ url_for('questionnaire') }}">← {{ t('nav_questionnaire') }}</a>
+  </div>
+  <div class="draft-note">{{ t('banner') }}</div>
+
+  {% for key, (title, html) in documents.items() %}
+  <article class="doc">
+    {{ html | safe }}
+  </article>
+  {% endfor %}
+
+  <script>window.addEventListener('load', function () { window.print(); });</script>
+</body>
+</html>

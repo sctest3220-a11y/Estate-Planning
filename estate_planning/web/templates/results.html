@@ -128,7 +128,10 @@
         <input type="hidden" name="asset_beneficiary" value="{{ a.beneficiary }}">
         <input type="hidden" name="asset_details" value="{{ a.details | attr_json }}">
       {% endfor %}
-      <button type="submit">{{ t('r_download') }}</button>
+      <div class="results-actions">
+        <button type="submit" formaction="{{ url_for('print_documents') }}" formtarget="_blank" class="secondary">{{ t('r_print') }}</button>
+        <button type="submit">{{ t('r_download') }}</button>
+      </div>
     </form>
   </div>
   <p class="muted">{{ t('r_draft_note') }}</p>

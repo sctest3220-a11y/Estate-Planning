@@ -11,6 +11,8 @@ import os
 import zipfile
 from functools import wraps
 
+import markdown as md
+
 from flask import (
     Flask,
     Response,
@@ -289,6 +291,26 @@ def create_app():
             relationships=RELATIONSHIP_CHOICES,
             form={},
         )
+
+    @app.route("/print", methods=["POST"])
+    @login_required
+    @terms_required
+    def print_documents():
+        # Regenerate from re-posted form data (no server-side storage), render
+        # the Markdown as HTML, and return a clean print-ready page.
+        plan, errors = build_plan(request.form)
+        if errors:
+            for e in errors:
+                flash(e, "error")
+            return redirect(url_for("questionnaire"))
+        mode = parse_language(request.form)
+        selected = parse_selected_docs(request.form)
+        documents = generate(plan, selected, mode)
+        rendered = {
+            key: (title, md.markdown(content, extensions=["tables"]))
+            for key, (title, content) in documents.items()
+        }
+        return render_template("print.html", documents=rendered)
 
     @app.route("/download", methods=["POST"])
     @login_required

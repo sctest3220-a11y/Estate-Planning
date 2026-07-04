@@ -70,6 +70,10 @@ Features:
   are exempt from personal income tax, distributing across beneficiaries (the 100M
   allowance is per person), routing through an exempt spouse, and lifetime gift-tax
   exemptions (20M/yr to lineal relatives or spouse, 10M/yr to others).
+- **Print & save for later** — a **Print** button renders the documents as clean HTML
+  (real headings/tables) and opens the browser print dialog (use "Save as PDF" for a
+  PDF); a **Save for later** button stores your answers in your browser only
+  (localStorage — never sent to the server) with a resume banner on return.
 - **Works on web and mobile browsers** — fully responsive down to small phone widths.
 
 **Privacy by design:** estate-planning inputs (names, passport numbers,

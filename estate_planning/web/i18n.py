@@ -253,6 +253,25 @@ TRANSLATIONS = {
     },
     "r_docs_title": {"en": "Draft documents", "th": "ร่างเอกสาร"},
     "r_download": {"en": "Download all as ZIP", "th": "ดาวน์โหลดทั้งหมดเป็น ZIP"},
+    "r_print": {"en": "🖨 Print", "th": "🖨 พิมพ์"},
+    "print_now": {"en": "Print", "th": "พิมพ์"},
+
+    # Save for later (browser only)
+    "save_draft": {"en": "💾 Save for later", "th": "💾 บันทึกไว้ทำต่อ"},
+    "draft_saved": {
+        "en": "Saved in this browser. It stays on this device only — come back and resume anytime.",
+        "th": "บันทึกไว้ในเบราว์เซอร์นี้ ข้อมูลอยู่บนอุปกรณ์นี้เท่านั้น กลับมาทำต่อได้ทุกเมื่อ",
+    },
+    "draft_found": {
+        "en": "You have a saved draft on this device.",
+        "th": "ท่านมีข้อมูลที่บันทึกไว้บนอุปกรณ์นี้",
+    },
+    "draft_resume": {"en": "Resume", "th": "ทำต่อ"},
+    "draft_discard": {"en": "Discard", "th": "ลบทิ้ง"},
+    "save_note": {
+        "en": "\"Save for later\" keeps your answers in this browser only (not on the server). An uploaded asset file is not saved — re-upload it when you resume.",
+        "th": "\"บันทึกไว้ทำต่อ\" จะเก็บคำตอบไว้ในเบราว์เซอร์นี้เท่านั้น (ไม่เก็บบนเซิร์ฟเวอร์) ไฟล์ทรัพย์สินที่อัปโหลดจะไม่ถูกบันทึก โปรดอัปโหลดใหม่เมื่อกลับมาทำต่อ",
+    },
     "r_draft_note": {
         "en": "These are drafts. Have a licensed Thai lawyer review each one before signing or witnessing.",
         "th": "เอกสารเหล่านี้เป็นร่าง โปรดให้ทนายความไทยที่มีใบอนุญาตตรวจสอบแต่ละฉบับก่อนลงนามหรือเป็นพยาน",
