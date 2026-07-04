@@ -13,6 +13,10 @@ of attorney, asset inventory, and inheritance tax.
 See [estate-planning-thailand.md](estate-planning-thailand.md) for the full bilingual
 (Thai/English) checklist and legal reference this tool is built from.
 
+**Documentation:** deeper docs live in [`docs/`](docs/) (an Obsidian vault,
+cross-linked with `[[wikilinks]]`) — start at [docs/Home.md](docs/Home.md). See also
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Web app (multi-user)
 
 A login-gated web front-end over the same advice/document logic.

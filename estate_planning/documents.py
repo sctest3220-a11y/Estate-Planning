@@ -379,6 +379,16 @@ def render_asset_inventory(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     out += f"## {_lbl(mode, 'Real estate', 'ที่ดินและสิ่งปลูกสร้าง')}\n"
     out += line("Land (title deed / Chanote)", "ที่ดิน (โฉนดที่ดิน)", plan.owns_land) + "\n"
     out += line("Condominium unit", "ห้องชุด", plan.owns_condo) + "\n"
+    out += (
+        "  "
+        + _t(
+            mode,
+            "Value based on the official government appraised value (ราคาประเมินราชการ), "
+            "not market price — look it up at https://assessprice.treasury.go.th",
+            "มูลค่าอ้างอิงจากราคาประเมินราชการ ไม่ใช่ราคาตลาด — ตรวจสอบได้ที่ https://assessprice.treasury.go.th",
+        )
+        + "\n"
+    )
     if plan.owns_land and plan.status != "thai_national":
         out += (
             "  ⚠️ "

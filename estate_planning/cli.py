@@ -28,6 +28,7 @@ from .models import (
 )
 from .advice import assess
 from .tax import tax_plan
+from .tips import planning_tips
 
 
 def ask(prompt, default=None):
@@ -262,11 +263,23 @@ def print_tax_plan(plan):
             print(f"  - {tip}")
 
 
+def print_tips(plan):
+    tips = planning_tips(plan)
+    if not tips:
+        return
+    print("\n" + "=" * 70)
+    print("TIPS & REMINDERS")
+    print("=" * 70)
+    for tip in tips:
+        print(f"  - {tip}")
+
+
 def main():
     plan = collect_plan()
     advice = assess(plan)
     print_advice(advice)
     print_tax_plan(plan)
+    print_tips(plan)
 
     selected_keys = choose_documents()
     mode = choose_language()

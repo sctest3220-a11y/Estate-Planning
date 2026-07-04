@@ -36,6 +36,7 @@ from ..assets_csv import parse_csv, template_csv
 from ..models import ASSET_CATEGORIES, STATUS_CHOICES, RELATIONSHIP_CHOICES
 from ..sample import sample_plan
 from ..tax import tax_plan
+from ..tips import planning_tips
 from . import google_auth
 from .forms import build_plan, parse_language, parse_selected_docs
 from .i18n import DEFAULT_UI_LANG, UI_LANGS, t as translate
@@ -55,6 +56,22 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = os.environ.get("ESTATE_SECRET_KEY", "dev-only-change-me")
     google_auth.init_app(app)
+
+    @app.template_filter("urlize_links")
+    def urlize_links(text):
+        """Escape text, then turn https URLs into clickable links."""
+        import re
+        from markupsafe import escape
+
+        parts = re.split(r"(https?://[^\s]+)", text)
+        out = []
+        for part in parts:
+            if part.startswith("http"):
+                url = str(escape(part))
+                out.append(f'<a href="{url}" target="_blank" rel="noopener">{url}</a>')
+            else:
+                out.append(str(escape(part)))
+        return "".join(out)
 
     # Make catalog + language options + UI translations available to every template.
     @app.context_processor
@@ -245,6 +262,7 @@ def create_app():
                 advice=advice,
                 documents=documents,
                 tax=tax_plan(plan),
+                tips=planning_tips(plan),
                 assets=plan.assets,
                 form=request.form,
             )

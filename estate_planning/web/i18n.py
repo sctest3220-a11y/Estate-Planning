@@ -123,6 +123,7 @@ TRANSLATIONS = {
         "en": "Add beneficiaries with values to see a tax estimate.",
         "th": "เพิ่มผู้รับพร้อมมูลค่าเพื่อดูประมาณการภาษี",
     },
+    "r_tips_title": {"en": "Tips & reminders", "th": "เคล็ดลับและข้อควรจำ"},
 
     # Questionnaire
     "q_title": {"en": "Estate planning questionnaire", "th": "แบบสอบถามการวางแผนมรดก"},
