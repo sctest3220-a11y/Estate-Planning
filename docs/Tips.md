@@ -23,6 +23,10 @@ Implemented in `tips.py` (see [[Architecture]]). Not legal/tax advice — see
   <https://assessprice.treasury.go.th>. See [[Inheritance Tax]].
 - **Foreign assets** (non-Thai nationals / foreign will) — keep a matching
   home-country will with a carve-out clause. See [[Thai Estate Law]].
+- **Financial power of attorney** (anyone with Thai dealings) — banks and government
+  offices usually require the standardized **Tor Dor 21 (ตด.21)** form, not a custom
+  POA, and Thai POAs are transaction-specific. The tool can't generate the official
+  form, so this is surfaced as guidance.
 - **Digital assets** (when a crypto/digital asset is listed) — securely record how
   to access wallets and accounts and leave instructions for your executor.
 

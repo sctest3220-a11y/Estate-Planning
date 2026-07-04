@@ -63,6 +63,17 @@ def planning_tips(plan):
             "revokes the other."
         )
 
+    # Financial power of attorney (Tor Dor 21). Relevant to anyone with Thai
+    # bank/land/government dealings — this tool can't generate the official form.
+    if plan.status != "visitor":
+        tips.append(
+            "Financial power of attorney: banks, the Land Office, and government "
+            "offices usually require the standardized Tor Dor 21 (ตด.21) form — a "
+            "custom lawyer-drafted POA is often rejected for those transactions. Get "
+            "the form from the relevant office (or its website), and note that Thai "
+            "POAs are typically transaction-specific, not broad/open-ended."
+        )
+
     # Digital assets.
     if any(a.category == "digital" for a in plan.assets):
         tips.append(

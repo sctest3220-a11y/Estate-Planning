@@ -49,6 +49,14 @@ class TipsTests(unittest.TestCase):
         tips = planning_tips(plan(status="foreign_resident"))
         self.assertTrue(any("outside Thailand" in t for t in tips))
 
+    def test_tor_dor_21_tip_for_non_visitor(self):
+        tips = planning_tips(plan(status="foreign_resident"))
+        self.assertTrue(any("Tor Dor 21" in t for t in tips))
+
+    def test_no_tor_dor_21_tip_for_visitor(self):
+        tips = planning_tips(plan(status="visitor"))
+        self.assertFalse(any("Tor Dor 21" in t for t in tips))
+
 
 if __name__ == "__main__":
     unittest.main()
