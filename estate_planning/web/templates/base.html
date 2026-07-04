@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Estate Planning — Thailand{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="{{ url_for('index') }}">Estate Planning · Thailand</a>
+    <nav>
+      {% if session.get('user') %}
+        <span class="user">{{ session['user'] }}</span>
+        <a href="{{ url_for('logout') }}">Log out</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <div class="banner">
+    Not legal advice · Not yet reviewed by a lawyer · Drafts only — verify with a licensed Thai probate/estate lawyer before signing.
+  </div>
+
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    Informational tool encoding publicly available Thai statutory rules. No
+    attorney–client relationship is created. Use at your own discretion.
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

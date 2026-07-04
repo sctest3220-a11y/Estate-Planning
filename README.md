@@ -13,23 +13,44 @@ of attorney, asset inventory, and inheritance tax.
 See [estate-planning-thailand.md](estate-planning-thailand.md) for the full bilingual
 (Thai/English) checklist and legal reference this tool is built from.
 
-## Get advice and generate documents
+## Web app (multi-user)
 
-Requires Python 3.9+, no third-party dependencies.
+A login-gated web front-end over the same advice/document logic.
+
+```bash
+python3 -m venv .venv
+./.venv/bin/pip install -r requirements.txt
+./.venv/bin/python -m flask --app estate_planning.web.app run --port 5001
+```
+
+Then open http://127.0.0.1:5001. The flow is: register → log in → **acknowledge
+the terms** (a required gate stating this is not legal advice and unreviewed) →
+questionnaire → advice + draft documents → download all as a ZIP.
+
+**Privacy by design:** estate-planning inputs (names, passport numbers,
+beneficiaries, asset values) are processed in memory per request and are **never
+written to disk or stored server-side**. The only persisted data is account
+credentials (hashed) and a terms-acknowledgment timestamp, in a gitignored
+`users.json`. The download re-posts your own form data rather than reading it from
+the server.
+
+Set these environment variables in any real deployment:
+
+- `ESTATE_SECRET_KEY` — Flask session signing key (required; the default is for dev only).
+- `ESTATE_USER_STORE` — path to the credentials file (point at a writable volume).
+
+### CLI
+
+The same logic is also available as an interactive command-line questionnaire:
 
 ```bash
 python3 -m estate_planning.cli
 ```
 
-The questionnaire asks about your status (Thai national / foreign resident /
-occasional visitor), assets, marriage, executor, witnesses, and beneficiaries, then:
-
-1. Prints tailored advice — warnings (e.g. dual-will strategy, land/condo
-   restrictions for foreign heirs, unregistered marriage, overseas executor) and
-   an estimated inheritance tax breakdown per beneficiary.
-2. Drafts the documents you select (Last Will, Living Will / Advance Directive,
-   Medical Power of Attorney, Asset Inventory) as bilingual Markdown files under
-   `output/<name>_<timestamp>/`.
+It prints tailored advice (dual-will strategy, land/condo restrictions for foreign
+heirs, unregistered marriage, overseas executor, inheritance-tax estimate) and
+writes bilingual draft documents (Last Will, Living Will, Medical POA, Asset
+Inventory) to `output/<name>_<timestamp>/`.
 
 `output/` is gitignored since drafts contain personal information — nothing there
 is committed.
@@ -41,7 +62,8 @@ is committed.
 - `estate_planning/advice.py` — rules engine that turns a profile into warnings/recommendations/tax estimates.
 - `estate_planning/documents.py` — bilingual document renderers.
 - `estate_planning/cli.py` — interactive questionnaire entry point.
-- `tests/test_advice.py` — unit tests for the rules engine (`python3 -m unittest discover -s tests`).
+- `estate_planning/web/` — Flask web app (`app.py` routes, `forms.py` form→plan parsing, `store.py` credential store, `templates/`, `static/`).
+- `tests/` — unit tests for the rules engine and web form parsing (`python3 -m unittest discover -s tests`).
 
 ## Sync
 
