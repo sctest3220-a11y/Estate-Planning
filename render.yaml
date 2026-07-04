@@ -1,0 +1,28 @@
+# Render Blueprint — deploy with one click via the Render dashboard
+# ("New +" -> "Blueprint" -> connect this repo), or `render blueprint launch`.
+#
+# The persistent disk keeps the login store (users.json) across restarts/deploys.
+# A disk requires a paid instance (Starter). On the free plan there is no disk, so
+# accounts would reset on each redeploy — fine for a quick demo, not for real use.
+services:
+  - type: web
+    name: estate-planning
+    runtime: docker
+    plan: starter
+    region: singapore          # closest Render region to Thailand
+    healthCheckPath: /login
+    autoDeploy: true
+    envVars:
+      - key: ESTATE_SECRET_KEY
+        generateValue: true    # Render generates a strong secret
+      - key: ESTATE_USER_STORE
+        value: /data/users.json
+      # Uncomment and set in the dashboard to enable "Sign in with Google":
+      # - key: GOOGLE_CLIENT_ID
+      #   sync: false
+      # - key: GOOGLE_CLIENT_SECRET
+      #   sync: false
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1

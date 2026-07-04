@@ -27,28 +27,60 @@ Configure the OAuth consent screen, then set `GOOGLE_CLIENT_ID` /
 
 The Flask dev server is not for production. The repo ships deployment artifacts:
 
-- **`Dockerfile`** — builds an image that serves the app with gunicorn on port 8000
-  and stores credentials on a `/data` volume.
-- **`Procfile`** — for Heroku-style platforms (`web: gunicorn ... -b 0.0.0.0:$PORT`).
+- **`Dockerfile`** — serves the app with gunicorn (binds `$PORT`, default 8000) and
+  keeps credentials on a `/data` volume.
+- **`render.yaml`** — Render Blueprint (Singapore region, persistent disk).
+- **`fly.toml`** — Fly.io config (Singapore region, persistent volume).
+- **`Procfile`** — for Heroku-style platforms.
 - **`.env.example`** — copy to `.env` and fill in the variables above.
 
-Quick container run:
+> **Why not Vercel/serverless?** This is a stateful app: it writes a small login
+> store (`users.json`) to disk. Serverless filesystems are ephemeral, so accounts
+> would reset on cold starts. A **container host with a persistent volume** is the
+> right fit. All options below provide one.
+
+### Persistence matters
+
+The only thing persisted is the credential store. It must live on a **persistent
+volume/disk** or accounts and terms-acknowledgments reset on redeploy. The configs
+below mount one at `/data` (matching `ESTATE_USER_STORE=/data/users.json`).
+
+### Option A — Render (blueprint)
+
+1. Push this repo to GitHub (done).
+2. In the Render dashboard: **New + → Blueprint**, connect the repo. Render reads
+   `render.yaml`, provisions the web service + 1 GB disk, and generates
+   `ESTATE_SECRET_KEY` automatically.
+3. Deploy. Your URL is `https://<name>.onrender.com`.
+4. (Optional) To enable Google sign-in, add `GOOGLE_CLIENT_ID` /
+   `GOOGLE_CLIENT_SECRET` in the dashboard and the callback
+   `https://<name>.onrender.com/auth/google/callback` in Google Cloud Console.
+
+   *Note: the persistent disk requires the paid Starter plan. On the free plan
+   there is no disk, so accounts reset on each redeploy — demo only.*
+
+### Option B — Fly.io (CLI)
+
+```bash
+fly launch --copy-config --no-deploy      # pick an app name if "estate-planning" is taken
+fly volumes create data --region sin --size 1
+fly secrets set ESTATE_SECRET_KEY=$(openssl rand -hex 32)
+fly deploy
+# optional Google sign-in:
+fly secrets set GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=...
+# then add https://<app>.fly.dev/auth/google/callback in Google Cloud Console
+```
+
+### Option C — plain Docker (any VPS)
 
 ```bash
 docker build -t estate-planning .
-docker run -p 8000:8000 -e ESTATE_SECRET_KEY=$(openssl rand -hex 32) \
+docker run -d -p 8000:8000 -e ESTATE_SECRET_KEY=$(openssl rand -hex 32) \
   -v estate-data:/data estate-planning
 ```
 
-Or without Docker:
-
-```bash
-ESTATE_SECRET_KEY=... gunicorn "estate_planning.web.app:app" -b 0.0.0.0:8000 --workers 2
-```
-
-Put it behind HTTPS (a reverse proxy or platform TLS). Container hosts like Render,
-Fly.io, or Railway can build the Dockerfile directly. See [[User Guide]] for what
-users experience and [[Development]] for the test suite (also run in CI via
+Put it behind HTTPS (platform TLS or a reverse proxy). See [[User Guide]] for the
+user experience and [[Development]] for the test suite (run in CI via
 `.github/workflows/tests.yml`).
 
 ## Privacy note

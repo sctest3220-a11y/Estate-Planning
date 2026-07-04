@@ -16,5 +16,6 @@ VOLUME ["/data"]
 EXPOSE 8000
 
 # ESTATE_SECRET_KEY (and optionally GOOGLE_CLIENT_ID/SECRET) must be provided at
-# runtime — see .env.example and docs/Deployment.md.
-CMD ["gunicorn", "estate_planning.web.app:app", "-b", "0.0.0.0:8000", "--workers", "2"]
+# runtime — see .env.example and docs/Deployment.md. Shell form so $PORT (set by
+# hosts like Render) expands, defaulting to 8000 locally / on Fly.
+CMD gunicorn estate_planning.web.app:app -b 0.0.0.0:${PORT:-8000} --workers 2
