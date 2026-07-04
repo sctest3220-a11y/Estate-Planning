@@ -56,6 +56,9 @@ class Asset:
     value_thb: float = 0.0
     location: str = ""
     notes: str = ""
+    # Name of the beneficiary who inherits this asset (matched to a Beneficiary
+    # by name). Blank = unassigned.
+    beneficiary: str = ""
     # Category-specific fields keyed by schema key (see asset_schema.py).
     details: dict = field(default_factory=dict)
 

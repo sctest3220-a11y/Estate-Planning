@@ -4,7 +4,8 @@ All output is a DRAFT for review by a licensed Thai probate/estate lawyer before
 signing or witnessing. Nothing produced here is legal advice.
 """
 
-from .asset_schema import ASSET_FIELD_SCHEMA, field_label
+from .asset_schema import ASSET_FIELD_SCHEMA, SPECIAL_KEYS, field_label
+from .bequests import asset_label, summarize
 from .models import ASSET_CATEGORIES, EstatePlan
 
 
@@ -18,7 +19,7 @@ def _asset_detail_text(asset, mode):
     schema = ASSET_FIELD_SCHEMA.get(asset.category)
     parts = []
     if schema:
-        skip = {schema["primary"], schema["reference"], "value_thb", "notes"}
+        skip = {schema["primary"], schema["reference"]} | SPECIAL_KEYS
         for key, value in asset.details.items():
             if key in skip:
                 continue
@@ -97,6 +98,79 @@ def _witness_block(mode, plan):
     return out
 
 
+def _asset_line(asset, mode):
+    val = f" — {asset.value_thb:,.0f} THB" if asset.value_thb else ""
+    return f"  - {asset_label(asset)}{val}\n"
+
+
+def _render_bequests(plan, mode):
+    """Who-gets-what: each beneficiary with their mapped assets, plus any
+    unassigned assets or assets named to someone not in the beneficiary list."""
+    summary = summarize(plan)
+    out = ""
+    has_content = (
+        summary["beneficiaries"] or summary["unknown"] or summary["unassigned"]
+    )
+    if not has_content:
+        return (
+            "- "
+            + _t(
+                mode,
+                "List each beneficiary and the asset(s) bequeathed to them.",
+                "ระบุผู้รับพินัยกรรมแต่ละคนและทรัพย์สินที่ยกให้",
+            )
+            + "\n"
+        )
+
+    for row in summary["beneficiaries"]:
+        out += f"- **{row['name']}** ({row['relationship']})\n"
+        if row["bequest_text"]:
+            out += f"  - {row['bequest_text']}\n"
+        for a in row["assets"]:
+            out += _asset_line(a, mode)
+        if row["mapped_total"]:
+            out += (
+                f"  - {_lbl(mode, 'Subtotal', 'ยอดรวม')}: "
+                f"{row['mapped_total']:,.0f} THB\n"
+            )
+        if not row["bequest_text"] and not row["assets"]:
+            out += (
+                "  - "
+                + _t(
+                    mode,
+                    "(no specific assets assigned yet)",
+                    "(ยังไม่ได้ระบุทรัพย์สิน)",
+                )
+                + "\n"
+            )
+
+    for u in summary["unknown"]:
+        warn = _t(
+            mode,
+            f'Assets assigned to "{u["name"]}", who is not in the beneficiary '
+            "list — add them as a beneficiary.",
+            f'ทรัพย์สินที่มอบให้ "{u["name"]}" ซึ่งไม่อยู่ในรายชื่อผู้รับ — โปรดเพิ่มเป็นผู้รับ',
+        )
+        out += f"- ⚠ {warn}\n"
+        for a in u["assets"]:
+            out += _asset_line(a, mode)
+
+    if summary["unassigned"]:
+        out += (
+            "- "
+            + _t(
+                mode,
+                "Unassigned assets (no beneficiary named):",
+                "ทรัพย์สินที่ยังไม่ได้ระบุผู้รับ:",
+            )
+            + "\n"
+        )
+        for a in summary["unassigned"]:
+            out += _asset_line(a, mode)
+
+    return out
+
+
 def render_last_will(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     out = _header(
         mode,
@@ -163,20 +237,7 @@ def render_last_will(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     out += (
         f"\n## {_lbl(mode, 'Beneficiaries and Bequests', 'ผู้รับพินัยกรรมและทรัพย์สินที่ยกให้')}\n"
     )
-    if plan.beneficiaries:
-        for b in plan.beneficiaries:
-            desc = b.asset_description or "____________________"
-            out += f"- {b.name} ({b.relationship}): {desc}\n"
-    else:
-        out += (
-            "- "
-            + _t(
-                mode,
-                "List each beneficiary and the asset(s) bequeathed to them.",
-                "ระบุผู้รับพินัยกรรมแต่ละคนและทรัพย์สินที่ยกให้",
-            )
-            + "\n"
-        )
+    out += _render_bequests(plan, mode)
     out += "\n"
     out += f"## {_lbl(mode, 'Execution', 'การลงนาม')}\n"
     out += (

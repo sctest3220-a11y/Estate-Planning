@@ -130,6 +130,27 @@ TRANSLATIONS = {
     },
     "r_tips_title": {"en": "Tips & reminders", "th": "เคล็ดลับและข้อควรจำ"},
 
+    # Who gets what
+    "r_bequests_title": {"en": "Who gets what", "th": "ใครได้รับอะไร"},
+    "r_bequests_subtotal": {"en": "Subtotal", "th": "ยอดรวม"},
+    "r_bequests_unassigned": {
+        "en": "Unassigned assets (no beneficiary named)",
+        "th": "ทรัพย์สินที่ยังไม่ได้ระบุผู้รับ",
+    },
+    "r_bequests_unknown": {
+        "en": "assigned to someone not in your beneficiary list — add them as a beneficiary",
+        "th": "มอบให้บุคคลที่ไม่อยู่ในรายชื่อผู้รับ — โปรดเพิ่มเป็นผู้รับ",
+    },
+    "r_bequests_none": {
+        "en": "Add beneficiaries and set each asset's beneficiary (in the asset rows or Excel sheet) to see who gets what.",
+        "th": "เพิ่มผู้รับและระบุผู้รับของแต่ละทรัพย์สิน (ในแถวทรัพย์สินหรือไฟล์ Excel) เพื่อดูว่าใครได้รับอะไร",
+    },
+    "r_bequests_no_assets": {"en": "no specific assets assigned yet", "th": "ยังไม่ได้ระบุทรัพย์สิน"},
+    "q_beneficiaries_hint": {
+        "en": "Enter each beneficiary's name exactly as you use it in the asset sheet's Beneficiary column, so assets map to the right person.",
+        "th": "กรอกชื่อผู้รับให้ตรงกับที่ใช้ในคอลัมน์ผู้รับของบัญชีทรัพย์สิน เพื่อให้ทรัพย์สินจับคู่กับบุคคลที่ถูกต้อง",
+    },
+
     # Questionnaire
     "q_title": {"en": "Estate planning questionnaire", "th": "แบบสอบถามการวางแผนมรดก"},
     "q_preview_link": {"en": "Preview blank templates →", "th": "ดูตัวอย่างเอกสารเปล่า →"},

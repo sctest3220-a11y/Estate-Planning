@@ -9,7 +9,7 @@ import openpyxl
 from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from .asset_schema import ASSET_FIELD_SCHEMA
+from .asset_schema import ASSET_FIELD_SCHEMA, SPECIAL_KEYS
 from .models import ASSET_CATEGORIES, Asset
 
 DATA_START_ROW = 3  # row 1 = English labels, row 2 = Thai labels, row 3+ = data
@@ -115,7 +115,7 @@ def parse_workbook(data_bytes):
             details = {
                 k: str(v).strip()
                 for k, v in rowdict.items()
-                if k not in ("value_thb", "notes") and str(v).strip()
+                if k not in SPECIAL_KEYS and str(v).strip()
             }
             assets.append(
                 Asset(
@@ -124,6 +124,7 @@ def parse_workbook(data_bytes):
                     value_thb=_to_float(rowdict.get("value_thb")),
                     location=str(rowdict.get(schema["reference"], "") or "").strip(),
                     notes=str(rowdict.get("notes", "") or "").strip(),
+                    beneficiary=str(rowdict.get("beneficiary", "") or "").strip(),
                     details=details,
                 )
             )

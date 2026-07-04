@@ -158,6 +158,11 @@ a { color: var(--accent); }
 .tips li { margin-bottom: 0.5rem; }
 .tips a { word-break: break-all; }
 
+.bequest { padding: 0.5rem 0; border-bottom: 1px solid var(--line); }
+.bequest:last-child { border-bottom: none; }
+.bequest ul { margin: 0.3rem 0; }
+.bequest.warn-block { color: var(--warn-ink); }
+
 .results-head { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
 
 details { border: 1px solid var(--line); border-radius: 8px; margin-bottom: 0.6rem; }

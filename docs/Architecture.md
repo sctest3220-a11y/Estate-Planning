@@ -11,6 +11,8 @@ overview.
   recommendations, tax breakdown). Encodes the guidance in [[Thai Estate Law]].
 - `tax.py` — inheritance & gift tax math and planning suggestions. See [[Inheritance Tax]].
 - `tips.py` — general tips/reminders, some conditional on the plan. See [[Tips]].
+- `bequests.py` — maps assets to beneficiaries by name and summarizes who gets what;
+  supplies the effective per-beneficiary values used by `tax.py`.
 - `documents.py` — language-aware document renderers (English / Thai / dual) via
   `_t()` / `_lbl()` helpers, `generate(plan, keys, mode)`, `DOCUMENT_SPECS`, and
   `LIVING_WILL_OPTIONS` (see [[Living Will Directives]]).

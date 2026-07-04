@@ -34,6 +34,7 @@ from ..documents import (
 )
 from ..asset_workbook import parse_workbook, template_xlsx
 from ..assets_csv import parse_csv
+from ..bequests import summarize
 from ..models import ASSET_CATEGORIES, STATUS_CHOICES, RELATIONSHIP_CHOICES
 from ..sample import sample_plan
 from ..tax import tax_plan
@@ -278,6 +279,7 @@ def create_app():
                 documents=documents,
                 tax=tax_plan(plan),
                 tips=planning_tips(plan),
+                bequests=summarize(plan),
                 assets=plan.assets,
                 form=request.form,
             )

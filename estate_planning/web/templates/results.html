@@ -53,6 +53,53 @@
   {% endif %}
 </div>
 
+<div class="card">
+  <h1>{{ t('r_bequests_title') }}</h1>
+  {% set has = bequests.beneficiaries or bequests.unknown or bequests.unassigned %}
+  {% if not has %}
+    <p class="muted">{{ t('r_bequests_none') }}</p>
+  {% else %}
+    {% for row in bequests.beneficiaries %}
+    <div class="bequest">
+      <strong>{{ row.name }}</strong> <span class="muted">({{ row.relationship }})</span>
+      <ul>
+        {% if row.bequest_text %}<li>{{ row.bequest_text }}</li>{% endif %}
+        {% for a in row.assets %}
+          <li>{{ a.description or asset_categories.get(a.category, a.category) }}
+            {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>
+        {% endfor %}
+        {% if not row.bequest_text and not row.assets %}
+          <li class="muted">{{ t('r_bequests_no_assets') }}</li>
+        {% endif %}
+      </ul>
+      {% if row.mapped_total %}
+        <div class="muted">{{ t('r_bequests_subtotal') }}: {{ '{:,.0f}'.format(row.mapped_total) }} THB</div>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+    {% for u in bequests.unknown %}
+    <div class="bequest warn-block">
+      ⚠ <strong>{{ u.name }}</strong> — {{ t('r_bequests_unknown') }}
+      <ul>
+        {% for a in u.assets %}<li>{{ a.description or asset_categories.get(a.category, a.category) }}
+          {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+
+    {% if bequests.unassigned %}
+    <div class="bequest">
+      <strong>{{ t('r_bequests_unassigned') }}</strong>
+      <ul>
+        {% for a in bequests.unassigned %}<li>{{ a.description or asset_categories.get(a.category, a.category) }}
+          {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  {% endif %}
+</div>
+
 {% if tips %}
 <div class="card">
   <h1>{{ t('r_tips_title') }}</h1>
@@ -77,6 +124,7 @@
         <input type="hidden" name="asset_value" value="{{ a.value_thb }}">
         <input type="hidden" name="asset_location" value="{{ a.location }}">
         <input type="hidden" name="asset_notes" value="{{ a.notes }}">
+        <input type="hidden" name="asset_beneficiary" value="{{ a.beneficiary }}">
         <input type="hidden" name="asset_details" value="{{ a.details | attr_json }}">
       {% endfor %}
       <button type="submit">{{ t('r_download') }}</button>

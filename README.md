@@ -60,6 +60,10 @@ Features:
   **upload** the filled `.xlsx` (or a `.csv`) back. Assets flow into the Asset
   Inventory document (a table with a total and per-category detail) and the tax
   estimate.
+- **Map assets to beneficiaries & "who gets what"** — each asset (in the Excel sheet
+  or an online row) has a Beneficiary column; the app matches it to a beneficiary by
+  name and summarizes who inherits what — in the results page and grouped in the
+  will — flagging unassigned assets and names not in your beneficiary list.
 - **Inheritance tax planning** — estimates tax per beneficiary (only the excess over
   100M THB is taxed; 5% for descendants/ascendants, 10% for others; spouses exempt),
   shows total estate and total tax, and gives planning suggestions: inherited assets

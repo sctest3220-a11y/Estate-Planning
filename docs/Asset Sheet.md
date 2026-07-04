@@ -22,10 +22,21 @@ currency; insurance captures insurer, policy number, policy type, and beneficiar
 Field schemas live in `asset_schema.py`; the workbook is built and parsed in
 `asset_workbook.py` (see [[Architecture]]).
 
+## Mapping assets to beneficiaries
+
+Every category tab (and every online row) has a **Beneficiary** column — enter the
+name of the person who inherits that asset, matching a name in the Beneficiaries
+section (case-insensitive). This drives the **who-gets-what** summary in the
+results and the will, and the per-beneficiary totals used for tax. Assets with a
+name not in your beneficiary list are flagged; assets left blank appear as
+"unassigned". See [[Architecture]] (`bequests.py`).
+
 ## Where assets go
 
 - Rendered as a **table with a total** in the Asset Inventory document.
-- Included in the [[Inheritance Tax]] estimate (total estate).
+- Grouped by beneficiary in the will's "Beneficiaries and Bequests" section.
+- Included in the [[Inheritance Tax]] estimate — a beneficiary's value is taken
+  from the assets mapped to them (or a manually entered amount).
 - Round-trip safe: uploaded assets are re-emitted as hidden fields so the ZIP
   download regenerates identically — nothing is persisted server-side.
 

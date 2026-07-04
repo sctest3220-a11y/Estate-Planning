@@ -108,6 +108,22 @@ ASSET_FIELD_SCHEMA = {
     },
 }
 
+# Every category also gets a common "beneficiary" column (inserted before notes)
+# so the user can map each asset to the person who inherits it.
+BENEFICIARY_FIELD = (
+    "beneficiary",
+    "Beneficiary (who inherits it)",
+    "ผู้รับมรดก (ผู้ที่จะได้รับทรัพย์สินนี้)",
+    False,
+)
+for _schema in ASSET_FIELD_SCHEMA.values():
+    _fields = _schema["fields"]
+    _idx = next((i for i, f in enumerate(_fields) if f[0] == "notes"), len(_fields))
+    _fields.insert(_idx, BENEFICIARY_FIELD)
+
+# Keys handled specially (not folded into an asset's category-specific details).
+SPECIAL_KEYS = {"value_thb", "notes", "beneficiary"}
+
 # Sanity: every category has a schema.
 assert set(ASSET_FIELD_SCHEMA) == set(ASSET_CATEGORIES), "asset schema/category mismatch"
 

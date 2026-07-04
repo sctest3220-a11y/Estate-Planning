@@ -91,7 +91,8 @@ def build_plan(form):
         rel = b_rels[i].strip() if i < len(b_rels) and b_rels[i] else "other"
         if rel not in RELATIONSHIP_CHOICES:
             rel = "other"
-        asset = (b_assets[i].strip() if i < len(b_assets) and b_assets[i] else "") or "TBD"
+        # Free-text bequest note; empty is fine (assets are mapped separately).
+        asset = b_assets[i].strip() if i < len(b_assets) and b_assets[i] else ""
         raw_value = b_values[i] if i < len(b_values) else "0"
         try:
             value = _parse_value(raw_value)
@@ -117,14 +118,16 @@ def build_plan(form):
     a_values = form.getlist("asset_value")
     a_locs = form.getlist("asset_location")
     a_notes = form.getlist("asset_notes")
+    a_bens = form.getlist("asset_beneficiary")
     a_details = form.getlist("asset_details")
     for i, cat in enumerate(a_cats):
         desc = a_descs[i].strip() if i < len(a_descs) and a_descs[i] else ""
         raw_value = a_values[i] if i < len(a_values) else "0"
         loc = a_locs[i].strip() if i < len(a_locs) and a_locs[i] else ""
         note = a_notes[i].strip() if i < len(a_notes) and a_notes[i] else ""
+        ben = a_bens[i].strip() if i < len(a_bens) and a_bens[i] else ""
         # A row with only a default category and nothing else is empty.
-        if not any([desc, (raw_value or "").strip(), loc, note]):
+        if not any([desc, (raw_value or "").strip(), loc, note, ben]):
             continue
         try:
             value = _parse_value(raw_value)
@@ -150,6 +153,7 @@ def build_plan(form):
                 value_thb=value,
                 location=loc,
                 notes=note,
+                beneficiary=ben,
                 details=details,
             )
         )

@@ -5,6 +5,7 @@ provisions as summarized in estate-planning-thailand.md. Not legal or tax advice
 figures and thresholds change — verify with a Thai tax lawyer or accountant.
 """
 
+from .bequests import effective_value
 from .models import (
     RELATIONSHIP_ASCENDANT,
     RELATIONSHIP_DESCENDANT,
@@ -33,9 +34,13 @@ def rate_for(relationship):
     return TAX_RATE_OTHER
 
 
-def beneficiary_tax(beneficiary):
-    """Return a structured inheritance-tax estimate for one beneficiary."""
-    inherited = beneficiary.inherited_value_thb or 0.0
+def beneficiary_tax(beneficiary, inherited=None):
+    """Return a structured inheritance-tax estimate for one beneficiary.
+
+    `inherited` overrides the value (e.g. one derived from mapped assets); when
+    None, the beneficiary's own inherited_value_thb is used.
+    """
+    inherited = (beneficiary.inherited_value_thb if inherited is None else inherited) or 0.0
     if beneficiary.relationship == RELATIONSHIP_SPOUSE:
         return {
             "name": beneficiary.name,
@@ -67,7 +72,7 @@ def tax_breakdown_lines(plan):
     """Human-readable per-beneficiary lines (kept stable for the CLI/advice)."""
     lines = []
     for b in plan.beneficiaries:
-        est = beneficiary_tax(b)
+        est = beneficiary_tax(b, effective_value(plan, b))
         if est["exempt"]:
             lines.append(f"{est['name']}: exempt (spouse).")
         elif est["taxable"] <= 0:
@@ -86,7 +91,9 @@ def tax_breakdown_lines(plan):
 
 def tax_plan(plan):
     """Return {estimates, total_tax, total_estate, tips} for tax planning."""
-    estimates = [beneficiary_tax(b) for b in plan.beneficiaries]
+    estimates = [
+        beneficiary_tax(b, effective_value(plan, b)) for b in plan.beneficiaries
+    ]
     total_tax = sum(e["tax"] for e in estimates)
     total_estate = sum((a.value_thb or 0.0) for a in plan.assets)
 

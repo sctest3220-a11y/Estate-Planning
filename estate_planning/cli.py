@@ -27,6 +27,7 @@ from .models import (
     Witness,
 )
 from .advice import assess
+from .bequests import asset_label, summarize
 from .tax import tax_plan
 from .tips import planning_tips
 
@@ -91,7 +92,7 @@ def collect_beneficiaries():
         if not name:
             break
         relationship = ask_choice("    Relationship to you", RELATIONSHIP_CHOICES, "other")
-        asset_description = ask("    Asset(s) bequeathed to them", "TBD")
+        asset_description = ask("    Asset(s) bequeathed to them (optional)", "")
         value = ask_float("    Estimated inherited value (THB)", 0.0)
         beneficiaries.append(
             Beneficiary(
@@ -274,11 +275,42 @@ def print_tips(plan):
         print(f"  - {tip}")
 
 
+def print_bequests(plan):
+    summary = summarize(plan)
+    if not (summary["beneficiaries"] or summary["unknown"] or summary["unassigned"]):
+        return
+    print("\n" + "=" * 70)
+    print("WHO GETS WHAT")
+    print("=" * 70)
+    for row in summary["beneficiaries"]:
+        print(f"\n{row['name']} ({row['relationship']}):")
+        if row["bequest_text"]:
+            print(f"  - {row['bequest_text']}")
+        for a in row["assets"]:
+            val = f" — {a.value_thb:,.0f} THB" if a.value_thb else ""
+            print(f"  - {asset_label(a)}{val}")
+        if row["mapped_total"]:
+            print(f"  Subtotal: {row['mapped_total']:,.0f} THB")
+        if not row["bequest_text"] and not row["assets"]:
+            print("  - (no specific assets assigned yet)")
+    for u in summary["unknown"]:
+        print(f"\n⚠ {u['name']} (not in beneficiary list):")
+        for a in u["assets"]:
+            val = f" — {a.value_thb:,.0f} THB" if a.value_thb else ""
+            print(f"  - {asset_label(a)}{val}")
+    if summary["unassigned"]:
+        print("\nUnassigned assets (no beneficiary named):")
+        for a in summary["unassigned"]:
+            val = f" — {a.value_thb:,.0f} THB" if a.value_thb else ""
+            print(f"  - {asset_label(a)}{val}")
+
+
 def main():
     plan = collect_plan()
     advice = assess(plan)
     print_advice(advice)
     print_tax_plan(plan)
+    print_bequests(plan)
     print_tips(plan)
 
     selected_keys = choose_documents()

@@ -153,6 +153,7 @@
 
     <fieldset data-docs="last_will">
       <legend>{{ t('q_beneficiaries_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
+      <p class="muted">{{ t('q_beneficiaries_hint') }}</p>
       <div id="beneficiaries"></div>
       <button type="button" class="secondary" onclick="addBeneficiary()">{{ t('q_add_beneficiary') }}</button>
     </fieldset>
@@ -167,7 +168,7 @@
   const RELATIONSHIPS = {{ relationships | tojson }};
   const ASSET_CATEGORIES = {{ asset_categories | tojson }};
 
-  function addAsset(cat, desc, value, loc, notes) {
+  function addAsset(cat, desc, value, loc, notes, ben) {
     const div = document.createElement('div');
     div.className = 'repeat-row';
     let options = Object.keys(ASSET_CATEGORIES).map(function (k) {
@@ -179,6 +180,7 @@
       '<input type="text" name="asset_description" placeholder="Description" value="' + (desc || '') + '">' +
       '<input type="text" name="asset_value" placeholder="Value (THB)" value="' + (value || '') + '">' +
       '<input type="text" name="asset_location" placeholder="Location / reference" value="' + (loc || '') + '">' +
+      '<input type="text" name="asset_beneficiary" placeholder="Beneficiary (who inherits it)" value="' + (ben || '') + '">' +
       '<input type="text" name="asset_notes" placeholder="Notes" value="' + (notes || '') + '">' +
       '<button type="button" class="link-btn" onclick="this.parentNode.remove(); applyContext()">remove</button>';
     document.getElementById('assets').appendChild(div);
