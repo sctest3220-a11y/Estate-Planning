@@ -184,6 +184,12 @@ TRANSLATIONS = {
         "th": "ผู้จัดการมรดกอยู่ในประเทศไทยหรือไม่?",
     },
     "q_proxy_name": {"en": "Healthcare proxy's full name", "th": "ชื่อ-นามสกุลผู้รับมอบอำนาจด้านสุขภาพ"},
+    "q_livingwill_legend": {"en": "Living will directives", "th": "คำสั่งในหนังสือแสดงเจตนา"},
+    "q_livingwill_hint": {
+        "en": "Choose the specific instructions to include in your living will. These apply only in a terminal stage where treatment would merely prolong dying. Thai law (Section 12) permits refusing life-prolonging treatment (passive) but not active euthanasia. Acceptance of specific directives can vary — confirm each with your hospital and a Thai lawyer before relying on it.",
+        "th": "เลือกคำสั่งเฉพาะที่จะรวมไว้ในหนังสือแสดงเจตนาของท่าน คำสั่งเหล่านี้ใช้เฉพาะในภาวะระยะสุดท้ายที่การรักษาเป็นเพียงการยืดการตาย กฎหมายไทย (มาตรา 12) อนุญาตให้ปฏิเสธการรักษาเพื่อยืดชีวิต (passive) แต่ไม่อนุญาตการทำให้ถึงแก่ความตาย โปรดยืนยันแต่ละข้อกับโรงพยาบาลและทนายความไทยก่อนนำไปใช้",
+    },
+    "q_livingwill_other": {"en": "Additional wishes (free text)", "th": "ความประสงค์เพิ่มเติม (ข้อความอิสระ)"},
     "q_witnesses_legend": {"en": "Witnesses", "th": "พยาน"},
     "q_witnesses_hint": {
         "en": "at least 2 recommended for a will",

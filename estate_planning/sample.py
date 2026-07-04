@@ -25,6 +25,8 @@ def sample_plan():
         executor_name="[Executor name]",
         executor_based_in_thailand=None,
         healthcare_proxy_name="[Healthcare proxy name]",
+        living_will_options=["dnr", "ventilator", "comfort_care"],
+        living_will_other="[Any additional wishes]",
         witnesses=[Witness(name="[Witness 1 name]", id_or_passport="[ID/Passport]")],
         beneficiaries=[
             Beneficiary(

@@ -44,6 +44,12 @@ Features:
   `/preview`, in any language, without entering any personal data.
 - **Mandatory vs optional fields** — only full name and status are required; every
   other field is marked optional and can be left blank to fill in by hand.
+- **Selectable living-will directives** — choose which specific instructions to
+  include (DNR/no CPR, no mechanical ventilation, no tube feeding, no dialysis,
+  palliative/comfort care, place-of-death preference, spiritual care) plus free-text
+  wishes. Each is phrased within Thailand's Section 12 framework (terminal stage,
+  passive refusal only — active euthanasia is illegal) and the UI + document carry a
+  prominent note to confirm each directive with the hospital and a Thai lawyer.
 - **Asset sheet** — itemize assets (category, description, value, location, notes)
   three ways: fill in online, or **download a CSV template** (`/asset-template.csv`)
   to complete offline in Excel/Sheets and **upload** it back. Assets flow into the

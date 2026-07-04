@@ -3,7 +3,12 @@
 Mirrors the questionnaire flow in estate_planning/cli.py.
 """
 
-from ..documents import DOCUMENT_SPECS, LANGUAGE_MODES, MODE_DUAL
+from ..documents import (
+    DOCUMENT_SPECS,
+    LANGUAGE_MODES,
+    LIVING_WILL_OPTIONS,
+    MODE_DUAL,
+)
 from ..models import (
     ASSET_CATEGORIES,
     STATUS_CHOICES,
@@ -160,6 +165,10 @@ def build_plan(form):
         executor_name=(form.get("executor_name") or "").strip() or "TBD",
         executor_based_in_thailand=_tristate(form, "executor_in_thailand"),
         healthcare_proxy_name=(form.get("healthcare_proxy_name") or "").strip() or "TBD",
+        living_will_options=[
+            k for k in form.getlist("living_will_options") if k in LIVING_WILL_OPTIONS
+        ],
+        living_will_other=(form.get("living_will_other") or "").strip(),
         witnesses=witnesses,
         beneficiaries=beneficiaries,
         assets=assets,

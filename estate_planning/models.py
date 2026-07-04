@@ -85,6 +85,11 @@ class EstatePlan:
 
     healthcare_proxy_name: str = "TBD"
 
+    # Selected specific directives to include in the living will (keys from
+    # documents.LIVING_WILL_OPTIONS), plus any free-text additional wishes.
+    living_will_options: List[str] = field(default_factory=list)
+    living_will_other: str = ""
+
     witnesses: List[Witness] = field(default_factory=list)
     beneficiaries: List[Beneficiary] = field(default_factory=list)
     assets: List[Asset] = field(default_factory=list)

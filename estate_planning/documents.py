@@ -176,6 +176,64 @@ def render_last_will(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     return out
 
 
+# Selectable living-will directives. Each is phrased within the Section 12
+# framework: passive refusal of life-prolonging treatment in the terminal stage
+# only (active euthanasia/assisted dying is illegal in Thailand). Acceptance of
+# any specific directive can vary — confirm with the hospital and a Thai lawyer.
+# key -> {label_en, label_th, clause_en, clause_th, kind: "refuse"|"request"}
+LIVING_WILL_OPTIONS = {
+    "dnr": {
+        "label_en": "Do not attempt resuscitation (DNR / no CPR)",
+        "label_th": "ไม่ต้องการการช่วยฟื้นคืนชีพ (DNR / งดการปั๊มหัวใจ)",
+        "clause_en": "I do not wish to receive cardiopulmonary resuscitation (CPR) if my heart or breathing stops in that terminal condition.",
+        "clause_th": "ข้าพเจ้าไม่ประสงค์จะได้รับการช่วยฟื้นคืนชีพ (CPR) หากหัวใจหรือการหายใจหยุดในภาวะระยะสุดท้ายดังกล่าว",
+        "kind": "refuse",
+    },
+    "ventilator": {
+        "label_en": "No mechanical ventilation to prolong dying",
+        "label_th": "ไม่ใช้เครื่องช่วยหายใจเพื่อยืดการตาย",
+        "clause_en": "I do not wish to be placed on, or kept on, a mechanical ventilator solely to prolong my dying.",
+        "clause_th": "ข้าพเจ้าไม่ประสงค์จะถูกใส่หรือคงไว้ซึ่งเครื่องช่วยหายใจเพียงเพื่อยืดการตายของข้าพเจ้า",
+        "kind": "refuse",
+    },
+    "feeding_tube": {
+        "label_en": "No artificial nutrition/hydration by tube to prolong dying",
+        "label_th": "ไม่ให้อาหารหรือน้ำทางสายยางเพื่อยืดการตาย",
+        "clause_en": "I do not wish to receive artificial nutrition or hydration by tube where it serves only to prolong my dying.",
+        "clause_th": "ข้าพเจ้าไม่ประสงค์จะได้รับอาหารหรือน้ำทางสายยางในกรณีที่เป็นเพียงการยืดการตาย",
+        "kind": "refuse",
+    },
+    "dialysis": {
+        "label_en": "No dialysis to prolong dying",
+        "label_th": "ไม่ฟอกไตเพื่อยืดการตาย",
+        "clause_en": "I do not wish to receive dialysis where it serves only to prolong my dying.",
+        "clause_th": "ข้าพเจ้าไม่ประสงค์จะได้รับการฟอกไตในกรณีที่เป็นเพียงการยืดการตาย",
+        "kind": "refuse",
+    },
+    "comfort_care": {
+        "label_en": "Provide palliative / comfort care and pain relief",
+        "label_th": "ให้การดูแลแบบประคับประคองและบรรเทาความเจ็บปวด",
+        "clause_en": "I wish to receive palliative and comfort care, including adequate relief of pain and distress.",
+        "clause_th": "ข้าพเจ้าประสงค์จะได้รับการดูแลแบบประคับประคองและการบรรเทาความเจ็บปวดและความทุกข์ทรมานอย่างเพียงพอ",
+        "kind": "request",
+    },
+    "place_of_death": {
+        "label_en": "Prefer to spend final days at home / in a peaceful setting",
+        "label_th": "ประสงค์จะใช้ช่วงสุดท้ายของชีวิตที่บ้านหรือในที่ที่สงบ",
+        "clause_en": "Where medically appropriate, I wish to spend my final days at home or in a peaceful setting rather than receiving further life-prolonging treatment in hospital.",
+        "clause_th": "หากเหมาะสมทางการแพทย์ ข้าพเจ้าประสงค์จะใช้ช่วงสุดท้ายของชีวิตที่บ้านหรือในสถานที่ที่สงบ แทนการรับการรักษาเพื่อยืดชีวิตต่อไปในโรงพยาบาล",
+        "kind": "request",
+    },
+    "spiritual_care": {
+        "label_en": "Receive spiritual / religious care per my beliefs",
+        "label_th": "ได้รับการดูแลด้านจิตวิญญาณ/ศาสนาตามความเชื่อของข้าพเจ้า",
+        "clause_en": "I wish to receive spiritual or religious care in accordance with my beliefs.",
+        "clause_th": "ข้าพเจ้าประสงค์จะได้รับการดูแลด้านจิตวิญญาณหรือศาสนาตามความเชื่อของข้าพเจ้า",
+        "kind": "request",
+    },
+}
+
+
 def render_living_will(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     out = _header(
         mode,
@@ -209,6 +267,32 @@ def render_living_will(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
         )
         + "\n\n"
     )
+
+    # Selected specific directives.
+    selected = [k for k in (plan.living_will_options or []) if k in LIVING_WILL_OPTIONS]
+    if selected or plan.living_will_other:
+        out += (
+            f"## {_lbl(mode, 'Specific instructions', 'คำสั่งเฉพาะ')}\n"
+            + _t(
+                mode,
+                "In that terminal situation, the following apply. (Confirm each with "
+                "your hospital and a Thai lawyer, as acceptance of specific directives "
+                "can vary.)",
+                "ในภาวะระยะสุดท้ายดังกล่าว ให้เป็นไปตามข้อกำหนดต่อไปนี้ (โปรดยืนยันแต่ละข้อกับโรงพยาบาลและทนายความไทย "
+                "เนื่องจากการยอมรับคำสั่งเฉพาะอาจแตกต่างกัน)",
+            )
+            + "\n\n"
+        )
+        for key in selected:
+            opt = LIVING_WILL_OPTIONS[key]
+            out += "- " + _t(mode, opt["clause_en"], opt["clause_th"]) + "\n"
+        if plan.living_will_other:
+            out += (
+                f"- {_lbl(mode, 'Additional wishes', 'ความประสงค์เพิ่มเติม')}: "
+                f"{plan.living_will_other}\n"
+            )
+        out += "\n"
+
     out += (
         _t(
             mode,

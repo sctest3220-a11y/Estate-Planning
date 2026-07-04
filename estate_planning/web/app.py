@@ -27,6 +27,7 @@ from ..documents import (
     DOCUMENT_SPECS,
     LANGUAGE_LABELS,
     LANGUAGE_MODES,
+    LIVING_WILL_OPTIONS,
     MODE_DUAL,
     document_title,
     generate,
@@ -59,11 +60,16 @@ def create_app():
     @app.context_processor
     def inject_globals():
         ui_lang = session.get("ui_lang", DEFAULT_UI_LANG)
+        label_key = "label_th" if ui_lang == "th" else "label_en"
+        living_will_catalog = [
+            (key, opt[label_key]) for key, opt in LIVING_WILL_OPTIONS.items()
+        ]
         return {
             "doc_catalog": _doc_catalog(),
             "language_modes": LANGUAGE_MODES,
             "language_labels": LANGUAGE_LABELS,
             "asset_categories": ASSET_CATEGORIES,
+            "living_will_catalog": living_will_catalog,
             "google_enabled": google_auth.is_configured(),
             "ui_lang": ui_lang,
             "ui_langs": UI_LANGS,

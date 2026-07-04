@@ -113,6 +113,21 @@
       </div>
     </fieldset>
 
+    <fieldset data-docs="living_will">
+      <legend>{{ t('q_livingwill_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
+      <p class="muted">{{ t('q_livingwill_hint') }}</p>
+      {% for key, label in living_will_catalog %}
+        <label class="checkbox">
+          <input type="checkbox" name="living_will_options" value="{{ key }}"
+            {{ 'checked' if (form and key in form.getlist('living_will_options')) else '' }}>
+          {{ label }}
+        </label>
+      {% endfor %}
+      <label>{{ t('q_livingwill_other') }}
+        <input type="text" name="living_will_other" value="{{ form.get('living_will_other', '') }}">
+      </label>
+    </fieldset>
+
     <fieldset data-docs="last_will asset_inventory">
       <legend>{{ t('q_assets_sheet_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
       <p class="muted">{{ t('q_assets_sheet_hint') }}</p>
