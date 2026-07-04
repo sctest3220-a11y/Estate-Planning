@@ -1,28 +1,37 @@
-# Render Blueprint — deploy with one click via the Render dashboard
-# ("New +" -> "Blueprint" -> connect this repo), or `render blueprint launch`.
+# Render Blueprint — deploy free: in the Render dashboard, "New +" -> "Blueprint",
+# connect this repo, and click Apply. Render reads this file.
 #
-# The persistent disk keeps the login store (users.json) across restarts/deploys.
-# A disk requires a paid instance (Starter). On the free plan there is no disk, so
-# accounts would reset on each redeploy — fine for a quick demo, not for real use.
+# FREE PLAN NOTE: the free instance has no persistent disk and sleeps after ~15 min
+# idle (slow first request). The login store lives at /tmp, which is writable but
+# resets on restart/redeploy — so accounts and terms-acknowledgments reset then.
+# Fine for a demo or single user. For persistent accounts, see the commented
+# "persistent" block at the bottom.
 services:
   - type: web
     name: estate-planning
     runtime: docker
-    plan: starter
+    plan: free
     region: singapore          # closest Render region to Thailand
     healthCheckPath: /login
     autoDeploy: true
     envVars:
       - key: ESTATE_SECRET_KEY
-        generateValue: true    # Render generates a strong secret
+        generateValue: true    # generated once, stable across restarts
       - key: ESTATE_USER_STORE
-        value: /data/users.json
+        value: /tmp/users.json # writable; ephemeral on the free plan
       # Uncomment and set in the dashboard to enable "Sign in with Google":
       # - key: GOOGLE_CLIENT_ID
       #   sync: false
       # - key: GOOGLE_CLIENT_SECRET
       #   sync: false
-    disk:
-      name: data
-      mountPath: /data
-      sizeGB: 1
+
+# ---------------------------------------------------------------------------
+# To make accounts persistent, upgrade to a paid instance with a disk:
+#   change   plan: free   ->   plan: starter
+#   change   ESTATE_USER_STORE value   ->   /data/users.json
+#   and add, at the same indentation as envVars:
+#     disk:
+#       name: data
+#       mountPath: /data
+#       sizeGB: 1
+# ---------------------------------------------------------------------------

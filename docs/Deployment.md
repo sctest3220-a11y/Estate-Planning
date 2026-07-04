@@ -45,19 +45,24 @@ The only thing persisted is the credential store. It must live on a **persistent
 volume/disk** or accounts and terms-acknowledgments reset on redeploy. The configs
 below mount one at `/data` (matching `ESTATE_USER_STORE=/data/users.json`).
 
-### Option A — Render (blueprint)
+### Option A — Render (blueprint, free)
+
+`render.yaml` is set to the **free** plan by default.
 
 1. Push this repo to GitHub (done).
-2. In the Render dashboard: **New + → Blueprint**, connect the repo. Render reads
-   `render.yaml`, provisions the web service + 1 GB disk, and generates
-   `ESTATE_SECRET_KEY` automatically.
+2. In the Render dashboard: **New + → Blueprint**, connect the repo, click **Apply**.
+   Render reads `render.yaml`, creates the web service, and generates
+   `ESTATE_SECRET_KEY`.
 3. Deploy. Your URL is `https://<name>.onrender.com`.
 4. (Optional) To enable Google sign-in, add `GOOGLE_CLIENT_ID` /
    `GOOGLE_CLIENT_SECRET` in the dashboard and the callback
    `https://<name>.onrender.com/auth/google/callback` in Google Cloud Console.
 
-   *Note: the persistent disk requires the paid Starter plan. On the free plan
-   there is no disk, so accounts reset on each redeploy — demo only.*
+**Free-plan behaviour:** no persistent disk (the login store is at `/tmp`, so
+accounts and terms-acknowledgments **reset on restart/redeploy**), and the service
+**sleeps after ~15 min idle** (first request is slow). Good for a demo or a single
+user. For persistent accounts, follow the commented upgrade block in `render.yaml`
+(Starter plan + a `/data` disk).
 
 ### Option B — Fly.io (CLI)
 
