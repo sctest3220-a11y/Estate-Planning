@@ -168,6 +168,42 @@
   const RELATIONSHIPS = {{ relationships | tojson }};
   const ASSET_CATEGORIES = {{ asset_categories | tojson }};
 
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c =>
+      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  // Names currently entered in the Beneficiaries section.
+  function beneficiaryNames() {
+    return [...document.querySelectorAll('input[name=beneficiary_name]')]
+      .map(i => i.value.trim()).filter(Boolean);
+  }
+
+  // Options for an asset's beneficiary picker: Unassigned + entered beneficiaries.
+  // Keeps the current selection even if that name isn't (yet) in the list.
+  function beneficiaryOptions(selected) {
+    let html = '<option value="">— Unassigned —</option>';
+    const seen = new Set();
+    beneficiaryNames().forEach(n => {
+      if (seen.has(n)) return;
+      seen.add(n);
+      html += '<option value="' + escapeHtml(n) + '"' +
+        (n === selected ? ' selected' : '') + '>' + escapeHtml(n) + '</option>';
+    });
+    if (selected && !seen.has(selected)) {
+      html += '<option value="' + escapeHtml(selected) + '" selected>' +
+        escapeHtml(selected) + ' (not in list)</option>';
+    }
+    return html;
+  }
+
+  // Rebuild every asset row's beneficiary picker, preserving each selection.
+  function refreshAssetBeneficiaries() {
+    document.querySelectorAll('select[name=asset_beneficiary]').forEach(sel => {
+      sel.innerHTML = beneficiaryOptions(sel.value);
+    });
+  }
+
   function addAsset(cat, desc, value, loc, notes, ben) {
     const div = document.createElement('div');
     div.className = 'repeat-row';
@@ -180,7 +216,8 @@
       '<input type="text" name="asset_description" placeholder="Description" value="' + (desc || '') + '">' +
       '<input type="text" name="asset_value" placeholder="Value (THB)" value="' + (value || '') + '">' +
       '<input type="text" name="asset_location" placeholder="Location / reference" value="' + (loc || '') + '">' +
-      '<input type="text" name="asset_beneficiary" placeholder="Beneficiary (who inherits it)" value="' + (ben || '') + '">' +
+      '<select name="asset_beneficiary" title="Beneficiary (who inherits it)">' +
+        beneficiaryOptions(ben || '') + '</select>' +
       '<input type="text" name="asset_notes" placeholder="Notes" value="' + (notes || '') + '">' +
       '<button type="button" class="link-btn" onclick="this.parentNode.remove(); applyContext()">remove</button>';
     document.getElementById('assets').appendChild(div);
@@ -205,13 +242,14 @@
       return '<option value="' + r + '"' + (r === rel ? ' selected' : '') + '>' + r + '</option>';
     }).join('');
     div.innerHTML =
-      '<input type="text" name="beneficiary_name" placeholder="Name" value="' + (name || '') + '">' +
+      '<input type="text" name="beneficiary_name" placeholder="Name" value="' + (name || '') + '" oninput="refreshAssetBeneficiaries()">' +
       '<select name="beneficiary_relationship">' + options + '</select>' +
       '<input type="text" name="beneficiary_asset" placeholder="Asset(s) bequeathed" value="' + (asset || '') + '">' +
       '<input type="text" name="beneficiary_value" placeholder="Value (THB)" value="' + (value || '') + '">' +
-      '<button type="button" class="link-btn" onclick="this.parentNode.remove(); applyContext()">remove</button>';
+      '<button type="button" class="link-btn" onclick="this.parentNode.remove(); applyContext(); refreshAssetBeneficiaries()">remove</button>';
     document.getElementById('beneficiaries').appendChild(div);
     applyContext();
+    refreshAssetBeneficiaries();
   }
 
   // Show only the sections relevant to the selected documents, and disable

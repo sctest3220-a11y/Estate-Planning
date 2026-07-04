@@ -24,11 +24,19 @@ Field schemas live in `asset_schema.py`; the workbook is built and parsed in
 
 ## Mapping assets to beneficiaries
 
-Every category tab (and every online row) has a **Beneficiary** column — enter the
-name of the person who inherits that asset, matching a name in the Beneficiaries
-section (case-insensitive). This drives the **who-gets-what** summary in the
-results and the will, and the per-beneficiary totals used for tax. Assets with a
-name not in your beneficiary list are flagged; assets left blank appear as
+Every asset is linked to the person who inherits it:
+
+- **Online rows** — a **dropdown** on each asset row lists the beneficiaries you've
+  added (kept in sync as you add/rename/remove them), so there are no typos. If a
+  selected name is later renamed, the old selection is preserved and marked
+  "(not in list)" rather than silently dropped.
+- **Excel sheet** — a free-text **Beneficiary** column on each category tab (the
+  template is downloaded before you enter beneficiaries, so it can't be a live
+  dropdown); type the name exactly as in the Beneficiaries section.
+
+Matching is by name (case-insensitive). This drives the **who-gets-what** summary
+in the results and the will, and the per-beneficiary totals used for tax. Assets
+with a name not in your beneficiary list are flagged; assets left blank appear as
 "unassigned". See [[Architecture]] (`bequests.py`).
 
 ## Where assets go

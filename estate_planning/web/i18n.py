@@ -147,8 +147,8 @@ TRANSLATIONS = {
     },
     "r_bequests_no_assets": {"en": "no specific assets assigned yet", "th": "ยังไม่ได้ระบุทรัพย์สิน"},
     "q_beneficiaries_hint": {
-        "en": "Enter each beneficiary's name exactly as you use it in the asset sheet's Beneficiary column, so assets map to the right person.",
-        "th": "กรอกชื่อผู้รับให้ตรงกับที่ใช้ในคอลัมน์ผู้รับของบัญชีทรัพย์สิน เพื่อให้ทรัพย์สินจับคู่กับบุคคลที่ถูกต้อง",
+        "en": "Add beneficiaries here first — then each asset row lets you pick who inherits it from a dropdown. In the Excel sheet, type the name exactly as entered here.",
+        "th": "เพิ่มผู้รับที่นี่ก่อน จากนั้นในแต่ละแถวทรัพย์สินจะเลือกผู้รับจากเมนูแบบเลื่อนลงได้ ส่วนในไฟล์ Excel ให้พิมพ์ชื่อให้ตรงกับที่กรอกไว้ที่นี่",
     },
 
     # Questionnaire
