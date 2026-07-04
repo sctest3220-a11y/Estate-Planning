@@ -39,6 +39,19 @@ in the results and the will, and the per-beneficiary totals used for tax. Assets
 with a name not in your beneficiary list are flagged; assets left blank appear as
 "unassigned". See [[Architecture]] (`bequests.py`).
 
+### Assigning a beneficiary is optional
+
+You can use this purely to **track your assets** without planning a will yet:
+
+- The Beneficiary field/column is never required.
+- The **Beneficiary column appears in the Asset Inventory document only if you have
+  assigned at least one asset** — otherwise the inventory stays a clean list.
+- The results **"Who gets what"** card only appears once you have beneficiaries; if
+  you're just cataloguing assets it stays hidden.
+
+When you're ready to plan the will later, add beneficiaries and assign assets, and
+the summary and column appear automatically.
+
 ## Where assets go
 
 - Rendered as a **table with a total** in the Asset Inventory document.

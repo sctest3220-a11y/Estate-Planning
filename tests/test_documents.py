@@ -7,11 +7,41 @@ from estate_planning.documents import (
     document_title,
     generate,
 )
+from estate_planning.models import Asset, EstatePlan
 from estate_planning.sample import sample_plan
 
 
 def has_thai(text):
     return any("฀" <= ch <= "๿" for ch in text)
+
+
+def _inventory_header(assets):
+    plan = EstatePlan(
+        full_name="Jane",
+        nationality="",
+        passport_or_id_number="P1",
+        date_of_birth="",
+        thai_address="",
+        status="foreign_resident",
+        assets=assets,
+    )
+    _, doc = generate(plan, ["asset_inventory"], MODE_EN)["asset_inventory"]
+    return next(line for line in doc.splitlines() if line.startswith("| Category"))
+
+
+class OptionalBeneficiaryColumnTests(unittest.TestCase):
+    def test_no_beneficiary_column_when_unassigned(self):
+        header = _inventory_header([Asset("bank_account", "BBL", 850000)])
+        self.assertNotIn("Beneficiary", header)
+
+    def test_beneficiary_column_when_any_assigned(self):
+        header = _inventory_header(
+            [
+                Asset("bank_account", "BBL", 850000, beneficiary="Malee"),
+                Asset("real_estate", "Condo", 6500000),
+            ]
+        )
+        self.assertIn("Beneficiary", header)
 
 
 class DocumentLanguageTests(unittest.TestCase):

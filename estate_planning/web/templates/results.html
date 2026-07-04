@@ -53,52 +53,53 @@
   {% endif %}
 </div>
 
+{# Only show "who gets what" once there are beneficiaries (or assets named to
+   someone). If the user is just tracking assets, this stays hidden. #}
+{# Only show "who gets what" once there are beneficiaries (or assets named to
+   someone). If the user is just tracking assets, this stays hidden. #}
+{% if bequests.beneficiaries or bequests.unknown %}
 <div class="card">
   <h1>{{ t('r_bequests_title') }}</h1>
-  {% set has = bequests.beneficiaries or bequests.unknown or bequests.unassigned %}
-  {% if not has %}
-    <p class="muted">{{ t('r_bequests_none') }}</p>
-  {% else %}
-    {% for row in bequests.beneficiaries %}
-    <div class="bequest">
-      <strong>{{ row.name }}</strong> <span class="muted">({{ row.relationship }})</span>
-      <ul>
-        {% if row.bequest_text %}<li>{{ row.bequest_text }}</li>{% endif %}
-        {% for a in row.assets %}
-          <li>{{ a.description or asset_categories.get(a.category, a.category) }}
-            {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>
-        {% endfor %}
-        {% if not row.bequest_text and not row.assets %}
-          <li class="muted">{{ t('r_bequests_no_assets') }}</li>
-        {% endif %}
-      </ul>
-      {% if row.mapped_total %}
-        <div class="muted">{{ t('r_bequests_subtotal') }}: {{ '{:,.0f}'.format(row.mapped_total) }} THB</div>
+  {% for row in bequests.beneficiaries %}
+  <div class="bequest">
+    <strong>{{ row.name }}</strong> <span class="muted">({{ row.relationship }})</span>
+    <ul>
+      {% if row.bequest_text %}<li>{{ row.bequest_text }}</li>{% endif %}
+      {% for a in row.assets %}
+        <li>{{ a.description or asset_categories.get(a.category, a.category) }}
+          {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>
+      {% endfor %}
+      {% if not row.bequest_text and not row.assets %}
+        <li class="muted">{{ t('r_bequests_no_assets') }}</li>
       {% endif %}
-    </div>
-    {% endfor %}
-
-    {% for u in bequests.unknown %}
-    <div class="bequest warn-block">
-      ⚠ <strong>{{ u.name }}</strong> — {{ t('r_bequests_unknown') }}
-      <ul>
-        {% for a in u.assets %}<li>{{ a.description or asset_categories.get(a.category, a.category) }}
-          {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>{% endfor %}
-      </ul>
-    </div>
-    {% endfor %}
-
-    {% if bequests.unassigned %}
-    <div class="bequest">
-      <strong>{{ t('r_bequests_unassigned') }}</strong>
-      <ul>
-        {% for a in bequests.unassigned %}<li>{{ a.description or asset_categories.get(a.category, a.category) }}
-          {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>{% endfor %}
-      </ul>
-    </div>
+    </ul>
+    {% if row.mapped_total %}
+      <div class="muted">{{ t('r_bequests_subtotal') }}: {{ '{:,.0f}'.format(row.mapped_total) }} THB</div>
     {% endif %}
+  </div>
+  {% endfor %}
+
+  {% for u in bequests.unknown %}
+  <div class="bequest warn-block">
+    ⚠ <strong>{{ u.name }}</strong> — {{ t('r_bequests_unknown') }}
+    <ul>
+      {% for a in u.assets %}<li>{{ a.description or asset_categories.get(a.category, a.category) }}
+        {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endfor %}
+
+  {% if bequests.unassigned %}
+  <div class="bequest">
+    <strong>{{ t('r_bequests_unassigned') }}</strong>
+    <ul>
+      {% for a in bequests.unassigned %}<li>{{ a.description or asset_categories.get(a.category, a.category) }}
+        {% if a.value_thb %}— {{ '{:,.0f}'.format(a.value_thb) }} THB{% endif %}</li>{% endfor %}
+    </ul>
+  </div>
   {% endif %}
 </div>
+{% endif %}
 
 {% if tips %}
 <div class="card">

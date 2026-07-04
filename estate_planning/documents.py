@@ -430,16 +430,21 @@ def render_asset_inventory(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     out = _header(mode, "Asset Inventory", "บัญชีทรัพย์สิน")
     out += f"{_lbl(mode, 'Owner', 'เจ้าของ')}: {plan.full_name}\n\n"
 
-    # Itemized asset sheet (from online entry or an uploaded CSV).
+    # Itemized asset sheet (from online entry or an uploaded sheet). The
+    # Beneficiary column only appears if at least one asset has been assigned —
+    # assigning beneficiaries is optional (you can just track assets).
     if plan.assets:
+        show_beneficiary = any(a.beneficiary for a in plan.assets)
         out += f"## {_lbl(mode, 'Itemized assets', 'รายการทรัพย์สิน')}\n\n"
         headers = [
             _lbl(mode, "Category", "หมวดหมู่"),
             _lbl(mode, "Description", "รายละเอียด"),
             _lbl(mode, "Value (THB)", "มูลค่า (บาท)"),
             _lbl(mode, "Location / Reference", "ที่ตั้ง / เอกสารอ้างอิง"),
-            _lbl(mode, "Notes", "หมายเหตุ"),
         ]
+        if show_beneficiary:
+            headers.append(_lbl(mode, "Beneficiary", "ผู้รับมรดก"))
+        headers.append(_lbl(mode, "Notes", "หมายเหตุ"))
         out += "| " + " | ".join(headers) + " |\n"
         out += "|" + "|".join(["---"] * len(headers)) + "|\n"
         total = 0.0
@@ -447,10 +452,11 @@ def render_asset_inventory(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
             total += a.value_thb or 0.0
             cat = ASSET_CATEGORIES.get(a.category, a.category)
             value = f"{a.value_thb:,.0f}" if a.value_thb else ""
-            out += (
-                f"| {_cell(cat)} | {_cell(a.description)} | {value} "
-                f"| {_cell(a.location)} | {_cell(_asset_detail_text(a, mode))} |\n"
-            )
+            row = [_cell(cat), _cell(a.description), value, _cell(a.location)]
+            if show_beneficiary:
+                row.append(_cell(a.beneficiary))
+            row.append(_cell(_asset_detail_text(a, mode)))
+            out += "| " + " | ".join(row) + " |\n"
         out += (
             f"\n**{_lbl(mode, 'Total listed value', 'มูลค่ารวมที่ระบุ')}: "
             f"{total:,.0f} THB**\n\n"
