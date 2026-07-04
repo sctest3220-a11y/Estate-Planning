@@ -128,6 +128,15 @@
       </label>
     </fieldset>
 
+    {# Beneficiaries come before the asset sheet so each asset's beneficiary
+       dropdown is already populated when you reach it. #}
+    <fieldset data-docs="last_will">
+      <legend>{{ t('q_beneficiaries_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
+      <p class="muted">{{ t('q_beneficiaries_hint') }}</p>
+      <div id="beneficiaries"></div>
+      <button type="button" class="secondary" onclick="addBeneficiary()">{{ t('q_add_beneficiary') }}</button>
+    </fieldset>
+
     <fieldset data-docs="last_will asset_inventory">
       <legend>{{ t('q_assets_sheet_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
       <p class="muted">{{ t('q_assets_sheet_hint') }}</p>
@@ -149,13 +158,6 @@
       <legend>{{ t('q_witnesses_legend') }} <span class="opt">{{ t('q_witnesses_hint') }}</span></legend>
       <div id="witnesses"></div>
       <button type="button" class="secondary" onclick="addWitness()">{{ t('q_add_witness') }}</button>
-    </fieldset>
-
-    <fieldset data-docs="last_will">
-      <legend>{{ t('q_beneficiaries_legend') }} <span class="opt">{{ t('q_optional') }}</span></legend>
-      <p class="muted">{{ t('q_beneficiaries_hint') }}</p>
-      <div id="beneficiaries"></div>
-      <button type="button" class="secondary" onclick="addBeneficiary()">{{ t('q_add_beneficiary') }}</button>
     </fieldset>
 
     <button type="submit">{{ t('q_submit') }}</button>

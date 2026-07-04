@@ -58,6 +58,29 @@ the summary and column appear automatically.
 - Grouped by beneficiary in the will's "Beneficiaries and Bequests" section.
 - Included in the [[Inheritance Tax]] estimate — a beneficiary's value is taken
   from the assets mapped to them (or a manually entered amount).
+
+## Relationship to the will (not an addendum)
+
+The **will body** contains the bequests (beneficiary → asset description + value) —
+that is the legally dispositive part. The **detailed Asset Inventory** (account
+numbers, locations) stays a **separate administrative companion for the executor**,
+not a binding addendum, because:
+
+- Under Thai law (Section 1656) any alteration to a will must be re-signed by the
+  testator and both witnesses — so embedding a volatile, detailed schedule would
+  force re-execution whenever an account changes.
+- A will becomes a probate-court document, so account numbers don't belong in it.
+
+Both documents carry a note stating this, and that a *binding* schedule of assets
+must be executed with the same formalities as the will (verify with a Thai lawyer).
+See [[Thai Estate Law]] and [[Disclaimer]].
+
+## Questionnaire order
+
+Beneficiaries are entered **before** the asset sheet, so each asset row's
+beneficiary dropdown is already populated when you reach it. The asset sheet (and
+its upload) stays in its own section — not inside the beneficiary section — so it
+remains available when you only want an inventory and no will.
 - Round-trip safe: uploaded assets are re-emitted as hidden fields so the ZIP
   download regenerates identically — nothing is persisted server-side.
 

@@ -239,6 +239,23 @@ def render_last_will(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     )
     out += _render_bequests(plan, mode)
     out += "\n"
+    if plan.assets:
+        out += (
+            "> "
+            + _t(
+                mode,
+                "A detailed inventory of these assets (account numbers, locations) is "
+                "kept separately for the executor's use. That inventory is an "
+                "administrative aid, not part of this will. To make a detailed "
+                "schedule of assets legally binding it must be signed and witnessed "
+                "with the same formalities as this will — confirm with a Thai lawyer.",
+                "รายการทรัพย์สินโดยละเอียด (เลขที่บัญชี ที่ตั้ง) จัดเก็บแยกต่างหากเพื่อใช้โดยผู้จัดการมรดก "
+                "บัญชีดังกล่าวเป็นเพียงเอกสารประกอบการบริหารจัดการ ไม่ใช่ส่วนหนึ่งของพินัยกรรมฉบับนี้ "
+                "หากต้องการให้บัญชีทรัพย์สินโดยละเอียดมีผลผูกพันตามกฎหมาย ต้องลงนามและมีพยานตามแบบพิธีเดียวกับพินัยกรรมนี้ "
+                "โปรดตรวจสอบกับทนายความไทย",
+            )
+            + "\n\n"
+        )
     out += f"## {_lbl(mode, 'Execution', 'การลงนาม')}\n"
     out += (
         _t(
@@ -429,6 +446,20 @@ def render_medical_poa(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
 def render_asset_inventory(plan: EstatePlan, mode: str = MODE_DUAL) -> str:
     out = _header(mode, "Asset Inventory", "บัญชีทรัพย์สิน")
     out += f"{_lbl(mode, 'Owner', 'เจ้าของ')}: {plan.full_name}\n\n"
+    out += (
+        "> "
+        + _t(
+            mode,
+            "This inventory is an administrative record to help your executor locate "
+            "your assets. It is not a will and does not, by itself, transfer anything. "
+            "Any beneficiary noted here reflects your intention only — the binding "
+            "gifts are those made in a properly executed will.",
+            "บัญชีนี้เป็นเอกสารประกอบการบริหารจัดการเพื่อช่วยให้ผู้จัดการมรดกค้นหาทรัพย์สินของท่าน "
+            "ไม่ใช่พินัยกรรมและไม่ได้โอนสิ่งใดด้วยตัวเอง ผู้รับที่ระบุไว้ที่นี่แสดงเจตนาของท่านเท่านั้น "
+            "การยกให้ที่มีผลผูกพันคือการยกให้ในพินัยกรรมที่ทำขึ้นอย่างถูกต้อง",
+        )
+        + "\n\n"
+    )
 
     # Itemized asset sheet (from online entry or an uploaded sheet). The
     # Beneficiary column only appears if at least one asset has been assigned —
