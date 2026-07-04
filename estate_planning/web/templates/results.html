@@ -130,7 +130,8 @@
       {% endfor %}
       <div class="results-actions">
         <button type="submit" formaction="{{ url_for('print_documents') }}" formtarget="_blank" class="secondary">{{ t('r_print') }}</button>
-        <button type="submit">{{ t('r_download') }}</button>
+        <button type="submit" name="format" value="docx" class="secondary">{{ t('r_download_docx') }}</button>
+        <button type="submit" name="format" value="md">{{ t('r_download') }}</button>
       </div>
     </form>
   </div>

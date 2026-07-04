@@ -25,15 +25,31 @@ Configure the OAuth consent screen, then set `GOOGLE_CLIENT_ID` /
 
 ## Production server
 
-The Flask dev server is not for production. Run behind a WSGI server, e.g.:
+The Flask dev server is not for production. The repo ships deployment artifacts:
+
+- **`Dockerfile`** — builds an image that serves the app with gunicorn on port 8000
+  and stores credentials on a `/data` volume.
+- **`Procfile`** — for Heroku-style platforms (`web: gunicorn ... -b 0.0.0.0:$PORT`).
+- **`.env.example`** — copy to `.env` and fill in the variables above.
+
+Quick container run:
 
 ```bash
-./.venv/bin/pip install gunicorn
-ESTATE_SECRET_KEY=... gunicorn "estate_planning.web.app:app" -b 0.0.0.0:8000
+docker build -t estate-planning .
+docker run -p 8000:8000 -e ESTATE_SECRET_KEY=$(openssl rand -hex 32) \
+  -v estate-data:/data estate-planning
 ```
 
-Put it behind HTTPS (a reverse proxy or platform TLS). See [[User Guide]] for what
-users experience.
+Or without Docker:
+
+```bash
+ESTATE_SECRET_KEY=... gunicorn "estate_planning.web.app:app" -b 0.0.0.0:8000 --workers 2
+```
+
+Put it behind HTTPS (a reverse proxy or platform TLS). Container hosts like Render,
+Fly.io, or Railway can build the Dockerfile directly. See [[User Guide]] for what
+users experience and [[Development]] for the test suite (also run in CI via
+`.github/workflows/tests.yml`).
 
 ## Privacy note
 

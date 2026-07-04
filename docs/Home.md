@@ -29,6 +29,7 @@ living will, medical POA, asset inventory) in English, Thai, or dual language.
 ## Reference
 
 - [[Disclaimer]] — scope and limits of this tool.
+- [[Lawyer Review]] — checklist of what a Thai lawyer should review before reliance.
 - Source checklist: [estate-planning-thailand.md](../estate-planning-thailand.md)
 - Repo: <https://github.com/sctest3220-a11y/Estate-Planning>
 

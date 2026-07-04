@@ -37,6 +37,7 @@ from ..documents import (
 from ..asset_workbook import parse_workbook, template_xlsx
 from ..assets_csv import parse_csv
 from ..bequests import summarize
+from ..docx_export import render_docx
 from ..models import ASSET_CATEGORIES, STATUS_CHOICES, RELATIONSHIP_CHOICES
 from ..sample import sample_plan
 from ..tax import tax_plan
@@ -328,10 +329,14 @@ def create_app():
         selected = parse_selected_docs(request.form)
         documents = generate(plan, selected, mode)
 
+        fmt = request.form.get("format", "md")
         buf = io.BytesIO()
         with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
             for key, (_title, content) in documents.items():
-                zf.writestr(f"{key}_{mode}.md", content)
+                if fmt == "docx":
+                    zf.writestr(f"{key}_{mode}.docx", render_docx(content))
+                else:
+                    zf.writestr(f"{key}_{mode}.md", content)
         buf.seek(0)
         return Response(
             buf.getvalue(),

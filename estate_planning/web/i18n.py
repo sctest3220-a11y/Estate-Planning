@@ -252,7 +252,8 @@ TRANSLATIONS = {
         "th": "ประมาณการภาษีมรดกแยกตามผู้รับ",
     },
     "r_docs_title": {"en": "Draft documents", "th": "ร่างเอกสาร"},
-    "r_download": {"en": "Download all as ZIP", "th": "ดาวน์โหลดทั้งหมดเป็น ZIP"},
+    "r_download": {"en": "⬇ Markdown (.zip)", "th": "⬇ Markdown (.zip)"},
+    "r_download_docx": {"en": "⬇ Word (.docx)", "th": "⬇ Word (.docx)"},
     "r_print": {"en": "🖨 Print", "th": "🖨 พิมพ์"},
     "print_now": {"en": "Print", "th": "พิมพ์"},
 

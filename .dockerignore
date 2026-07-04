@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+output/
+docs/
+tests/
+.claude/
+estate_planning/web/users.json
+*.md

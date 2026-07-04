@@ -35,6 +35,16 @@ def parse_selected_docs(form):
     return selected or list(DOCUMENT_SPECS.keys())
 
 
+# Defensive caps to keep a single submission bounded.
+MAX_TEXT_LEN = 300
+MAX_ROWS = 200
+MAX_VALUE_THB = 1e15  # ~1 quadrillion baht; anything above is a typo/abuse
+
+
+def _clip(text):
+    return (text or "").strip()[:MAX_TEXT_LEN]
+
+
 def _checkbox(form, name):
     return form.get(name) in ("on", "true", "1", "yes")
 
@@ -52,14 +62,17 @@ def _tristate(form, name):
 def _parse_value(raw):
     if not raw:
         return 0.0
-    return float(str(raw).replace(",", "").strip())
+    value = float(str(raw).replace(",", "").strip())
+    if value != value or value in (float("inf"), float("-inf")):
+        raise ValueError("not a finite number")
+    return value
 
 
 def build_plan(form):
     """Returns (plan, errors). plan is None if there are blocking errors."""
     errors = []
 
-    full_name = (form.get("full_name") or "").strip()
+    full_name = _clip(form.get("full_name"))
     if not full_name:
         errors.append("Full legal name is required.")
 
@@ -72,10 +85,12 @@ def build_plan(form):
     names = form.getlist("witness_name")
     ids = form.getlist("witness_id")
     for i, name in enumerate(names):
-        name = (name or "").strip()
+        if len(witnesses) >= MAX_ROWS:
+            break
+        name = _clip(name)
         if not name:
             continue
-        id_no = (ids[i].strip() if i < len(ids) and ids[i] else "") or "TBD"
+        id_no = (_clip(ids[i]) if i < len(ids) else "") or "TBD"
         witnesses.append(Witness(name=name, id_or_passport=id_no))
 
     # Beneficiaries.
@@ -85,14 +100,16 @@ def build_plan(form):
     b_assets = form.getlist("beneficiary_asset")
     b_values = form.getlist("beneficiary_value")
     for i, name in enumerate(b_names):
-        name = (name or "").strip()
+        if len(beneficiaries) >= MAX_ROWS:
+            break
+        name = _clip(name)
         if not name:
             continue
         rel = b_rels[i].strip() if i < len(b_rels) and b_rels[i] else "other"
         if rel not in RELATIONSHIP_CHOICES:
             rel = "other"
         # Free-text bequest note; empty is fine (assets are mapped separately).
-        asset = b_assets[i].strip() if i < len(b_assets) and b_assets[i] else ""
+        asset = _clip(b_assets[i]) if i < len(b_assets) else ""
         raw_value = b_values[i] if i < len(b_values) else "0"
         try:
             value = _parse_value(raw_value)
@@ -101,6 +118,9 @@ def build_plan(form):
             value = 0.0
         if value < 0:
             errors.append(f"Inherited value for '{name}' cannot be negative.")
+            value = 0.0
+        if value > MAX_VALUE_THB:
+            errors.append(f"Inherited value for '{name}' is unrealistically large.")
             value = 0.0
         beneficiaries.append(
             Beneficiary(
@@ -121,21 +141,26 @@ def build_plan(form):
     a_bens = form.getlist("asset_beneficiary")
     a_details = form.getlist("asset_details")
     for i, cat in enumerate(a_cats):
-        desc = a_descs[i].strip() if i < len(a_descs) and a_descs[i] else ""
+        if len(assets) >= MAX_ROWS:
+            break
+        desc = _clip(a_descs[i]) if i < len(a_descs) else ""
         raw_value = a_values[i] if i < len(a_values) else "0"
-        loc = a_locs[i].strip() if i < len(a_locs) and a_locs[i] else ""
-        note = a_notes[i].strip() if i < len(a_notes) and a_notes[i] else ""
-        ben = a_bens[i].strip() if i < len(a_bens) and a_bens[i] else ""
+        loc = _clip(a_locs[i]) if i < len(a_locs) else ""
+        note = _clip(a_notes[i]) if i < len(a_notes) else ""
+        ben = _clip(a_bens[i]) if i < len(a_bens) else ""
         # A row with only a default category and nothing else is empty.
         if not any([desc, (raw_value or "").strip(), loc, note, ben]):
             continue
         try:
             value = _parse_value(raw_value)
         except ValueError:
-            errors.append(f"Asset value '{raw_value}' must be a number.")
+            errors.append(f"Asset value '{str(raw_value)[:40]}' must be a number.")
             value = 0.0
         if value < 0:
             errors.append("Asset values cannot be negative.")
+            value = 0.0
+        if value > MAX_VALUE_THB:
+            errors.append("An asset value is unrealistically large.")
             value = 0.0
         category = cat.strip() if cat.strip() in ASSET_CATEGORIES else "other"
         details = {}
@@ -165,10 +190,10 @@ def build_plan(form):
 
     plan = EstatePlan(
         full_name=full_name,
-        nationality=(form.get("nationality") or "").strip(),
-        passport_or_id_number=(form.get("passport_or_id_number") or "").strip(),
-        date_of_birth=(form.get("date_of_birth") or "").strip(),
-        thai_address=(form.get("thai_address") or "").strip(),
+        nationality=_clip(form.get("nationality")),
+        passport_or_id_number=_clip(form.get("passport_or_id_number")),
+        date_of_birth=_clip(form.get("date_of_birth")),
+        thai_address=_clip(form.get("thai_address")),
         status=status,
         has_thai_will=_checkbox(form, "has_thai_will"),
         has_foreign_will=_checkbox(form, "has_foreign_will"),
@@ -177,15 +202,15 @@ def build_plan(form):
         has_lease=(not is_visitor) and _checkbox(form, "has_lease"),
         has_lease_with_succession_clause=_tristate(form, "lease_succession"),
         married_to_thai=(not is_visitor) and _checkbox(form, "married_to_thai"),
-        spouse_name=(form.get("spouse_name") or "").strip(),
+        spouse_name=_clip(form.get("spouse_name")),
         marriage_registered_at_amphur=_tristate(form, "marriage_registered"),
-        executor_name=(form.get("executor_name") or "").strip() or "TBD",
+        executor_name=_clip(form.get("executor_name")) or "TBD",
         executor_based_in_thailand=_tristate(form, "executor_in_thailand"),
-        healthcare_proxy_name=(form.get("healthcare_proxy_name") or "").strip() or "TBD",
+        healthcare_proxy_name=_clip(form.get("healthcare_proxy_name")) or "TBD",
         living_will_options=[
             k for k in form.getlist("living_will_options") if k in LIVING_WILL_OPTIONS
-        ],
-        living_will_other=(form.get("living_will_other") or "").strip(),
+        ][:MAX_ROWS],
+        living_will_other=_clip(form.get("living_will_other")),
         witnesses=witnesses,
         beneficiaries=beneficiaries,
         assets=assets,

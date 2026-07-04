@@ -10,3 +10,6 @@ output/
 # User store — account credentials, never commit
 estate_planning/web/users.json
 estate_planning/web/users.json.tmp
+
+# Secrets
+.env
